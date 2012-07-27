@@ -3243,7 +3243,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
                 throw new Exception(String.Format("The inventory item '{0}' is not an object", itemName));
 
-                return;
+//                return;
             }
 
             ScenePresence sp = World.GetScenePresence(avatarId);
