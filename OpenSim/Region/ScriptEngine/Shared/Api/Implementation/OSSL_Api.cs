@@ -3340,8 +3340,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 return;
             }
 
-            List<IBounds> constrain = new List<IBounds>();
-            List<IBounds> exclude = new List<IBounds>();
+            //List<IBounds> constrain = new List<IBounds>();
+            //List<IBounds> exclude = new List<IBounds>();
+
+            BoundingGroup boundingGroup = new BoundingGroup();
             bool ignoreFurtherBounds = false;
 
             int idx = 0;
@@ -3364,19 +3366,20 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                         switch (newChatType)
                         {
                             case ScriptBaseClass.OS_CHAT_TYPE_WHISPER:
-                                constrain = new List<IBounds>{
+                                boundingGroup = new BoundingGroup(new List<IBounds>{
                                     new BoundingSphere(Vector3.Zero, wComm.WhisperDistance)
-                                };
+                                });
                                 break;
                             case ScriptBaseClass.OS_CHAT_TYPE_SHOUT:
-                                constrain = new List<IBounds>{
+                                boundingGroup = new BoundingGroup(new List<IBounds>{
                                     new BoundingSphere(Vector3.Zero, wComm.ShoutDistance)
-                                };
+                                });
                                 break;
                             default:
-                                constrain = new List<IBounds>{
+
+                                boundingGroup = new BoundingGroup(new List<IBounds>{
                                     new BoundingSphere(Vector3.Zero, wComm.SayDistance)
-                                };
+                                });
                                 break;
                         }
                         ignoreFurtherBounds = true;
@@ -3435,11 +3438,13 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                         {
                             if (constrainBounds)
                             {
-                                constrain.Add(newBounds);
+//                                constrain.Add(newBounds);
+                                boundingGroup += newBounds;
                             }
                             else
                             {
-                                exclude.Add(newBounds);
+                         //       exclude.Add(newBounds);
+                                boundingGroup -= newBounds;
                             }
                         }
                         break;
@@ -3448,7 +3453,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 #endregion
             }
 
-            wComm.DeliverMessage(channel, m_host.Name, m_host.UUID, message, constrain, exclude);
+            wComm.DeliverMessage(channel, m_host.Name, m_host.UUID, message, boundingGroup);
         }
     }
 }

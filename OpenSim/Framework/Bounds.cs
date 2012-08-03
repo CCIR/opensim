@@ -26,6 +26,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using OpenMetaverse;
 
 namespace OpenSim.Framework
@@ -107,6 +108,74 @@ namespace OpenSim.Framework
         public bool Contains(Vector3 point)
         {
             return Vector3.Distance(Center, point) <= Math.Abs(Radius);
+        }
+    }
+
+    public class BoundingGroup
+    {
+        private List<IBounds> m_include = new List<IBounds>(0);
+        public int IncludeCount { get { return m_include.Count; } }
+
+        private List<IBounds> m_exclude = new List<IBounds>(0);
+        public int ExcludeCount { get { return m_exclude.Count; } }
+
+        public BoundingGroup()
+        {
+
+        }
+
+        public BoundingGroup(List<IBounds> include)
+        {
+            m_include = include;
+        }
+
+        public BoundingGroup(List<IBounds> include, List<IBounds> exclude)
+        {
+            m_include = include;
+            m_exclude = exclude;
+        }
+
+        // adding a bounds constraint to the "space"
+        public static BoundingGroup operator +(BoundingGroup group, IBounds bounds)
+        {
+            group.m_include.Add(bounds);
+            return group;
+        }
+
+        // subtracting "valid space"
+        public static BoundingGroup operator -(BoundingGroup group, IBounds bounds)
+        {
+            group.m_exclude.Add(bounds);
+            return group;
+        }
+
+        public bool Contains(Vector3 point)
+        {
+            if (m_include.Count < 1)
+            {
+                return false;
+            }
+            bool maybe = false;
+            foreach (IBounds bounds in m_include)
+            {
+                if (bounds.Contains(point))
+                {
+                    maybe = true;
+                    break;
+                }
+            }
+            if (!maybe)
+            {
+                return false;
+            }
+            foreach (IBounds bounds in m_exclude)
+            {
+                if (bounds.Contains(point))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
