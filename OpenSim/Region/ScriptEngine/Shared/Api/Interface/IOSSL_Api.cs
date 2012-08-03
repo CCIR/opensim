@@ -305,5 +305,13 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         /// </summary>
         /// <returns>Rezzing object key or NULL_KEY if rezzed by agent or otherwise unknown.</returns>
         LSL_Key osGetRezzingObject();
+
+        /// <summary>
+        /// Make a chat message with specified rules affecting the recipients.
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="message"></param>
+        /// <param name="rules"></param>
+        void osChat(int channel, string message, LSL_List rules);
     }
 }

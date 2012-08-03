@@ -950,5 +950,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.ScriptBase
         {
             return m_OSSL_Functions.osGetRezzingObject();
         }
+
+        public void osChat(integer channel, string message, LSL_List rules)
+        {
+            m_OSSL_Functions.osChat(channel, message, rules);
+        }
     }
 }

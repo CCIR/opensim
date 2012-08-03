@@ -660,5 +660,25 @@ namespace OpenSim.Region.ScriptEngine.Shared.ScriptBase
         public static readonly LSLInteger RCERR_UNKNOWN = -1;        
         public static readonly LSLInteger RCERR_SIM_PERF_LOW = -2;
         public static readonly LSLInteger RCERR_CAST_TIME_EXCEEDED = 3;
+
+        #region constants for osChat
+
+        public const int OS_CHAT_TYPE = 0;
+        public const int OS_CHAT_CONSTRAINT_BOUNDS = 1;
+        public const int OS_CHAT_EXCLUDE_BOUNDS = 2;
+
+        public const int OS_CHAT_TYPE_WHISPER = 0;
+        public const int OS_CHAT_TYPE_SAY = 1;
+        public const int OS_CHAT_TYPE_SHOUT = 2;
+
+        public const int OS_CHAT_BOUNDING_SPHERE = 0;
+        public const int OS_CHAT_BOUNDING_SPHERE_WHISPER = 1;
+        public const int OS_CHAT_BOUNDING_SPHERE_SAY = 2;
+        public const int OS_CHAT_BOUNDING_SPHERE_SHOUT = 3;
+        public const int OS_CHAT_BOUNDING_BOX = 4;
+        public const int OS_CHAT_BOUNDING_BOX_REGION = 5;
+
+        #endregion
+
     }
 }
