@@ -94,9 +94,15 @@ namespace OpenSim.Region.CoreModules.Scripting.WorldComm
         private Queue m_pending;
         private Queue m_pendingQ;
         private Scene m_scene;
+
         private int m_whisperdistance = 10;
+        public int WhisperDistance { get { return m_whisperdistance; } }
+
         private int m_saydistance = 20;
+        public int SayDistance { get { return m_saydistance; } }
+
         private int m_shoutdistance = 100;
+        public int ShoutDistance { get { return m_shoutdistance; } }
 
         #region IRegionModule Members
 

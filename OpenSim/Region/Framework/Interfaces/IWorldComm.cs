@@ -49,6 +49,10 @@ namespace OpenSim.Region.Framework.Interfaces
 
     public interface IWorldComm
     {
+        int WhisperDistance { get; }
+        int SayDistance { get; }
+        int ShoutDistance { get; }
+
         /// <summary>
         /// Total number of listeners
         /// </summary>
