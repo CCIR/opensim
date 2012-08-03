@@ -296,10 +296,10 @@ namespace OpenSim.Region.CoreModules.Scripting.WorldComm
             }
         }
 
-        public void DeliverMessage(int channel, string name, UUID id, string msg, List<IBounds> include, List<IBounds> exclude)
+        public void DeliverMessage(int channel, string name, UUID id, string msg, BoundingGroup boundingGroup)
         {
             // If there are no inclusive bounds, then the message will not reach anyone.
-            if (include.Count < 1)
+            if (boundingGroup.IncludeCount < 1)
             {
                 return;
             }
@@ -328,28 +328,7 @@ namespace OpenSim.Region.CoreModules.Scripting.WorldComm
                     continue;
                 }
 
-                bool includeThisOne = false;
-                foreach (IBounds bounds in include)
-                {
-                    if (bounds.Contains(sPart.AbsolutePosition))
-                    {
-                        includeThisOne = true;
-                        break;
-                    }
-                }
-                if (!includeThisOne)
-                {
-                    continue;
-                }
-                foreach (IBounds bounds in exclude)
-                {
-                    if (bounds.Contains(sPart.AbsolutePosition))
-                    {
-                        includeThisOne = false;
-                        break;
-                    }
-                }
-                if (includeThisOne)
+                if (boundingGroup.Contains(sPart.AbsolutePosition))
                 {
                     deliverables.Add(li);
                 }

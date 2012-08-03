@@ -97,9 +97,8 @@ namespace OpenSim.Region.Framework.Interfaces
         /// <param name="name">name of sender (object or avatar)</param>
         /// <param name="id">key of sender (object or avatar)</param>
         /// <param name="msg">msg to sent</param>
-        /// <param name="include">Only listeners inside these bounds will receieve the message</param>
-        /// <param name="exclude">Listeners that are inside include but also inside exclude constraints will not receieve the message.</param>
-        void DeliverMessage(int channel, string name, UUID id, string msg, List<IBounds> include, List<IBounds> exclude);
+        /// <param name="boundingGroup">Group of inclusive & exclusive bounding constraints</param>
+        void DeliverMessage(int channel, string name, UUID id, string msg, BoundingGroup boundingGroup);
 
         /// <summary>
         /// Delivers the message to a specified object in the region.
