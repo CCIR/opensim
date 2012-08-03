@@ -296,6 +296,71 @@ namespace OpenSim.Region.CoreModules.Scripting.WorldComm
             }
         }
 
+        public void DeliverMessage(int channel, string name, UUID id, string msg, List<IBounds> include, List<IBounds> exclude)
+        {
+            // If there are no inclusive bounds, then the message will not reach anyone.
+            if (include.Count < 1)
+            {
+                return;
+            }
+
+            // If somehow the prim left the scene before we get to here, act as if this method was not called.
+            if (m_scene.GetSceneObjectPart(id) == null)
+            {
+                return;
+            }
+
+            // rather than queuing messages as soon as we've found something, we're compiling a list and *then* queuing messages.
+            List<ListenerInfo> deliverables = new List<ListenerInfo>();
+
+            // First we need to get listeners that match the message
+            foreach (ListenerInfo li in m_listenerManager.GetListeners(UUID.Zero, channel, name, id, msg))
+            {
+                // Dont process if this message is from yourself!
+                if (li.GetHostID().Equals(id))
+                    continue;
+
+                SceneObjectPart sPart = m_scene.GetSceneObjectPart(li.GetHostID());
+
+                // listening object is no longer in scene, so we want to skip it
+                if (sPart == null)
+                {
+                    continue;
+                }
+
+                bool includeThisOne = false;
+                foreach (IBounds bounds in include)
+                {
+                    if (bounds.Contains(sPart.AbsolutePosition))
+                    {
+                        includeThisOne = true;
+                        break;
+                    }
+                }
+                if (!includeThisOne)
+                {
+                    continue;
+                }
+                foreach (IBounds bounds in exclude)
+                {
+                    if (bounds.Contains(sPart.AbsolutePosition))
+                    {
+                        includeThisOne = false;
+                        break;
+                    }
+                }
+                if (includeThisOne)
+                {
+                    deliverables.Add(li);
+                }
+            }
+
+            foreach (ListenerInfo li in deliverables)
+            {
+                QueueMessage(new ListenerInfo(li, name, id, msg));
+            }
+        }
+
         /// <summary>
         /// Delivers the message to a scene entity.
         /// </summary>

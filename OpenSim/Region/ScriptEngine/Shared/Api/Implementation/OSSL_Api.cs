@@ -3322,5 +3322,133 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
             return new LSL_Key(m_host.ParentGroup.FromPartID.ToString());
         }
+
+        public void osChat(int channel, string message, LSL_List rules)
+        {
+            if (rules.Length < 1)
+            {
+                m_LSL_Api.llSay(channel, message);
+                return;
+            }
+
+            CheckThreatLevel(ThreatLevel.Moderate, "osChat");
+            m_host.AddScriptLPS(1);
+
+            IWorldComm wComm = m_ScriptEngine.World.RequestModuleInterface<IWorldComm>();
+            if (wComm == null)
+            {
+                return;
+            }
+
+            List<IBounds> constrain = new List<IBounds>();
+            List<IBounds> exclude = new List<IBounds>();
+            bool ignoreFurtherBounds = false;
+
+            int idx = 0;
+            while (idx < rules.Length)
+            {
+                int code = rules.GetLSLIntegerItem(idx++);
+                int remain = rules.Length - idx;
+
+                #region rules parser
+
+                switch (code)
+                {
+                    case ScriptBaseClass.OS_CHAT_TYPE:
+                        if (remain < 1)
+                        {
+                            return;
+                        }
+                        int newChatType = rules.GetLSLIntegerItem(idx++);
+                        // If a specific chat type is specified, we're going to ignore the previous bounds.
+                        switch (newChatType)
+                        {
+                            case ScriptBaseClass.OS_CHAT_TYPE_WHISPER:
+                                constrain = new List<IBounds>{
+                                    new BoundingSphere(Vector3.Zero, wComm.WhisperDistance)
+                                };
+                                break;
+                            case ScriptBaseClass.OS_CHAT_TYPE_SHOUT:
+                                constrain = new List<IBounds>{
+                                    new BoundingSphere(Vector3.Zero, wComm.ShoutDistance)
+                                };
+                                break;
+                            default:
+                                constrain = new List<IBounds>{
+                                    new BoundingSphere(Vector3.Zero, wComm.SayDistance)
+                                };
+                                break;
+                        }
+                        ignoreFurtherBounds = true;
+                        break;
+                    case ScriptBaseClass.OS_CHAT_CONSTRAINT_BOUNDS:
+                    case ScriptBaseClass.OS_CHAT_EXCLUDE_BOUNDS:
+                        bool constrainBounds = code == ScriptBaseClass.OS_CHAT_CONSTRAINT_BOUNDS;
+                        if (remain < 1)
+                        {
+                            return;
+                        }
+                        int boundsType = rules.GetLSLIntegerItem(idx++);
+                        if (remain < 2 && boundsType != ScriptBaseClass.OS_CHAT_BOUNDING_BOX_REGION)
+                        {
+                            return;
+                        }
+                        IBounds newBounds = null;
+                        // region box needs no further parameters.
+                        Vector3 center = Vector3.Zero;
+                        if (boundsType != ScriptBaseClass.OS_CHAT_BOUNDING_BOX_REGION)
+                        {
+                            LSL_Vector lslCenter = rules.GetVector3Item(idx++);
+                            center = new Vector3((float)lslCenter.x, (float)lslCenter.y, (float)lslCenter.z);
+                        }
+                        switch (boundsType)
+                        {
+                            case ScriptBaseClass.OS_CHAT_BOUNDING_SPHERE_WHISPER:
+                                newBounds = new BoundingSphere(center, wComm.WhisperDistance);
+                                break;
+                            case ScriptBaseClass.OS_CHAT_BOUNDING_SPHERE_SAY:
+                                newBounds = new BoundingSphere(center, wComm.SayDistance);
+                                break;
+                            case ScriptBaseClass.OS_CHAT_BOUNDING_SPHERE_SHOUT:
+                                newBounds = new BoundingSphere(center, wComm.ShoutDistance);
+                                break;
+                            case ScriptBaseClass.OS_CHAT_BOUNDING_BOX_REGION:
+                                newBounds = new BoundingBox(new Vector3(Constants.RegionSize / 2, Constants.RegionSize / 2, Constants.RegionSize * 8), new Vector3(Constants.RegionSize, Constants.RegionSize, Constants.RegionSize * 16));
+                                break;
+                            case ScriptBaseClass.OS_CHAT_BOUNDING_SPHERE:
+                                if (remain < 3)
+                                {
+                                    return;
+                                }
+                                newBounds = new BoundingSphere(center, (float)rules.GetLSLFloatItem(idx++));
+                                break;
+                            case ScriptBaseClass.OS_CHAT_BOUNDING_BOX:
+                                if (remain < 3)
+                                {
+                                    return;
+                                }
+                                LSL_Vector boxSize = rules.GetVector3Item(idx++);
+                                newBounds = new BoundingBox(center, new Vector3((float)boxSize.x, (float)boxSize.y, (float)boxSize.z));
+                                break;
+                        }
+                        if (!ignoreFurtherBounds && newBounds != null)
+                        {
+                            if (constrainBounds)
+                            {
+                                constrain.Add(newBounds);
+                            }
+                            else
+                            {
+                                exclude.Add(newBounds);
+                            }
+                        }
+                        break;
+                }
+
+                #endregion
+            }
+
+            wComm.DeliverMessage(channel, m_host.Name, m_host.UUID, message, constrain, exclude);
+        }
     }
 }

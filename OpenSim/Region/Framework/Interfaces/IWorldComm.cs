@@ -26,6 +26,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using OpenMetaverse;
 using OpenSim.Framework;
 
@@ -88,6 +89,17 @@ namespace OpenSim.Region.Framework.Interfaces
         /// <param name="id">key of sender (object or avatar)</param>
         /// <param name="msg">msg to sent</param>
         void DeliverMessage(ChatTypeEnum type, int channel, string name, UUID id, string msg);
+
+        /// <summary>
+        /// Attempt to deliver a message 
+        /// </summary>
+        /// <param name="channel">channel to sent on</param>
+        /// <param name="name">name of sender (object or avatar)</param>
+        /// <param name="id">key of sender (object or avatar)</param>
+        /// <param name="msg">msg to sent</param>
+        /// <param name="include">Only listeners inside these bounds will receieve the message</param>
+        /// <param name="exclude">Listeners that are inside include but also inside exclude constraints will not receieve the message.</param>
+        void DeliverMessage(int channel, string name, UUID id, string msg, List<IBounds> include, List<IBounds> exclude);
 
         /// <summary>
         /// Delivers the message to a specified object in the region.
