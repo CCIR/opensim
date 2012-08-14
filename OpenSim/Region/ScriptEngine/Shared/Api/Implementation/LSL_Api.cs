@@ -5510,11 +5510,11 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             {
                 for (int i = 0; i < length; i++)
                 {
-                    if (src.Data[i].Equals(test.Data[0]))
+                    if (src.Data[i].Equals(test.Data[0]) || test.Data[0].Equals(src.Data[i]))
                     {
                         int j;
                         for (j = 1; j < test.Length; j++)
-                            if (!src.Data[i+j].Equals(test.Data[j]))
+                            if (!src.Data[i+j].Equals(test.Data[j]) && !test.Data[j].Equals(src.Data[i+j]))
                                 break;
                         if (j == test.Length)
                         {
