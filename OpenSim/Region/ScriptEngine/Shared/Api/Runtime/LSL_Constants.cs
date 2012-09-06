@@ -32,22 +32,37 @@ using LSLInteger = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLInteger;
 
 namespace OpenSim.Region.ScriptEngine.Shared.ScriptBase
 {
+    [Flags]
+    public enum STATUS
+    {
+        PHYSICS = 1,
+        ROTATE_X = 2,
+        ROTATE_Y = 4,
+        ROTATE_Z = 8,
+        PHANTOM = 16,
+        SANDBOX = 32,
+        BLOCK_GRAB = 64,
+        DIE_AT_EDGE = 128,
+        RETURN_AT_EDGE = 256,
+        CAST_SHADOWS = 512
+    }
+
     public partial class ScriptBaseClass
     {
         // LSL CONSTANTS
         public static readonly LSLInteger TRUE = new LSLInteger(1);
         public static readonly LSLInteger FALSE = new LSLInteger(0);
 
-        public const int STATUS_PHYSICS = 1;
-        public const int STATUS_ROTATE_X = 2;
-        public const int STATUS_ROTATE_Y = 4;
-        public const int STATUS_ROTATE_Z = 8;
-        public const int STATUS_PHANTOM = 16;
-        public const int STATUS_SANDBOX = 32;
-        public const int STATUS_BLOCK_GRAB = 64;
-        public const int STATUS_DIE_AT_EDGE = 128;
-        public const int STATUS_RETURN_AT_EDGE = 256;
-        public const int STATUS_CAST_SHADOWS = 512;
+        public const int STATUS_PHYSICS = (int)STATUS.PHYSICS;
+        public const int STATUS_ROTATE_X = (int)STATUS.ROTATE_X;
+        public const int STATUS_ROTATE_Y = (int)STATUS.ROTATE_Y;
+        public const int STATUS_ROTATE_Z = (int)STATUS.ROTATE_Z;
+        public const int STATUS_PHANTOM = (int)STATUS.PHANTOM;
+        public const int STATUS_SANDBOX = (int)STATUS.SANDBOX;
+        public const int STATUS_BLOCK_GRAB = (int)STATUS.BLOCK_GRAB;
+        public const int STATUS_DIE_AT_EDGE = (int)STATUS.DIE_AT_EDGE;
+        public const int STATUS_RETURN_AT_EDGE = (int)STATUS.RETURN_AT_EDGE;
+        public const int STATUS_CAST_SHADOWS = (int)STATUS.CAST_SHADOWS;
 
         public const int AGENT = 1;
         public const int AGENT_BY_LEGACY_NAME = 1;
