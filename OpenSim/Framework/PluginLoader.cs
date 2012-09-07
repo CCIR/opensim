@@ -221,6 +221,53 @@ namespace OpenSim.Framework
             AddinManager.Initialize(dir);
             AddinManager.Registry.Update(null);
             suppress_console_output_(false);
+
+            Addin OpenSimAddin = AddinManager.Registry.GetAddin("OpenSim");
+            if (OpenSimAddin != null)
+            {
+                Dictionary<string, string> incompatible = new Dictionary<string, string>();
+                Type attrType = typeof(AddinDependencyAttribute);
+                foreach (Addin addin in AddinManager.Registry.GetAddins())
+                {
+                    Assembly assembly = Assembly.LoadFile(addin.AddinFile);
+
+                    List<AddinDependencyAttribute> attrs = (new List<object>(
+                            assembly.GetCustomAttributes(attrType,
+                            true))).ConvertAll<AddinDependencyAttribute>(o =>
+                            {
+                                return (AddinDependencyAttribute)o;
+                            });
+
+                    foreach (AddinDependencyAttribute attr in attrs)
+                    {
+                        if (attr.Id == Addin.GetIdName(OpenSimAddin.Id))
+                        {
+                            if (Addin.CompareVersions(OpenSimAddin.Version,
+                                    attr.Version) > 0)
+                            {
+                                incompatible[addin.Id] = attr.Version;
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (incompatible.Count > 0)
+                {
+                    log.DebugFormat(
+                                "[PLUGINS]: Some plugins will not load" +
+                                " because they are not compatible with this" +
+                                " version of OpenSim ({0})",
+                                OpenSimAddin.Version);
+                    foreach (KeyValuePair<string, string> kvp in incompatible)
+                    {
+                        log.DebugFormat(
+                                "[PLUGINS]: {0} {1} requires" +
+                                " OpenSim version {2}",
+                                Addin.GetIdName(kvp.Key),
+                                Addin.GetIdVersion(kvp.Key), kvp.Value);
+                    }
+                }
+            }
         }
 
         private void on_addinloaded_(object sender, AddinEventArgs args)
