@@ -257,8 +257,6 @@ namespace OpenSim.Region.CoreModules.Avatar.Chat
             (scene as Scene).EventManager.TriggerOnChatToClients(
                 fromID, receiverIDs, message, c.Type, fromPos, fromName, sourceType, ChatAudibleLevel.Fully);
         }
-
-        static private Vector3 CenterOfRegion = new Vector3(128, 128, 30);
         
         public virtual void OnChatBroadcast(Object sender, OSChatMessage c)
         {
@@ -306,13 +304,13 @@ namespace OpenSim.Region.CoreModules.Avatar.Chat
                         (((SceneObjectPart)c.SenderObject).OwnerID != client.AgentId))
                         return;
                     
-                    client.SendChatMessage(c.Message, (byte)cType, CenterOfRegion, fromName, fromID, 
+                    client.SendChatMessage(c.Message, (byte)cType, ((Scene)c.Scene).Center, fromName, fromID,
                                             (byte)sourceType, (byte)ChatAudibleLevel.Fully);
                     receiverIDs.Add(client.AgentId);
                 });
             
             (c.Scene as Scene).EventManager.TriggerOnChatToClients(
-                fromID, receiverIDs, c.Message, cType, CenterOfRegion, fromName, sourceType, ChatAudibleLevel.Fully);
+                fromID, receiverIDs, c.Message, cType, (c.Scene as Scene).Center, fromName, sourceType, ChatAudibleLevel.Fully);
         }
 
         /// <summary>
