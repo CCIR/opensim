@@ -184,6 +184,23 @@ namespace OpenSim.Region.Framework.Scenes
             }
         }
 
+        /// <summary>
+        /// Gets the x & y center of a region with the z axis set to ground level.
+        /// </summary>
+        /// <returns>
+        /// <see cref="Center"/> with modified z-axis
+        /// </returns>
+        public Vector3 GroundLevelCenter()
+        {
+            if (Heightmap == null)
+                return Center;
+
+            Vector3 center = Center;
+            center.Z = (float)Heightmap[(int)center.X, (int)center.X];
+
+            return center;
+        }
+
         /// <value>
         /// Allows retrieval of land information for this scene.
         /// </value>
