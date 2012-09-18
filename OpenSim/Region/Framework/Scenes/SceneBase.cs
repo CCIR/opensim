@@ -153,6 +153,54 @@ namespace OpenSim.Region.Framework.Scenes
 
         public ITerrainChannel Heightmap;
 
+        /// <summary>
+        /// Get the center of the region based on the heightmap,
+        /// future-proofing &amp; downstream-proofing against variably sized
+        /// regions.
+        /// </summary>
+        /// <remarks>
+        /// Returns Vector3.Zero when the heightmap has not been set rather
+        /// than null due to historical behaviour of incoming avatars and
+        /// objects rezzing at the ZERO_VECTOR corner of a region due to lag
+        /// and making a distinction from a hypothetical 1-dimensional region
+        /// i.e. one that has a z axis but no effective x/y axis which would
+        /// have a Center value of Vector3(0, 0, Constants.RegionHeight / 2.0)
+        /// </remarks>
+        public Vector3 Center
+        {
+            get
+            {
+                if (Heightmap == null)
+                {
+                    return Vector3.Zero;
+                }
+                else
+                {
+                    return new Vector3(
+                            (float)(Heightmap.Width / 2.0),
+                            (float)(Heightmap.Height / 2.0),
+                            (float)(Constants.RegionHeight / 2.0));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the x & y center of a region with the z axis set to ground level.
+        /// </summary>
+        /// <returns>
+        /// <see cref="Center"/> with modified z-axis
+        /// </returns>
+        public Vector3 GroundLevelCenter()
+        {
+            if (Heightmap == null)
+                return Center;
+
+            Vector3 center = Center;
+            center.Z = (float)Heightmap[(int)center.X, (int)center.X];
+
+            return center;
+        }
+
         /// <value>
         /// Allows retrieval of land information for this scene.
         /// </value>

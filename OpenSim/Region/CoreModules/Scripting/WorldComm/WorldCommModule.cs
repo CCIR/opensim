@@ -213,9 +213,6 @@ namespace OpenSim.Region.CoreModules.Scripting.WorldComm
             m_listenerManager.DeleteListener(itemID);
         }
 
-
-        protected static Vector3 CenterOfRegion = new Vector3(128, 128, 20);
-
         public void DeliverMessage(ChatTypeEnum type, int channel, string name, UUID id, string msg)
         {
             Vector3 position;
@@ -227,7 +224,7 @@ namespace OpenSim.Region.CoreModules.Scripting.WorldComm
             else if ((avatar = m_scene.GetScenePresence(id)) != null) 
                 position = avatar.AbsolutePosition;
             else if (ChatTypeEnum.Region == type)
-                position = CenterOfRegion;
+                position = m_scene.Center;
             else
                 return;
 
