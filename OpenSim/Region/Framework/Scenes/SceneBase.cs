@@ -159,28 +159,27 @@ namespace OpenSim.Region.Framework.Scenes
         /// regions.
         /// </summary>
         /// <remarks>
-        /// Uses Vector3d to avoid precision loss. Returns
-        /// Vector3d.Zero when the heightmap has not been set rather than null
-        /// due to historical behaviour of incoming avatars and objects
-        /// rezzing at the ZERO_VECTOR corner of a region due to lag and
-        /// making a distinction from a hypothetical 1-dimensional region i.e.
-        /// one that has a z axis but no effective x/y axis which would have a
-        /// Center value of Vector3d(0, 0, Constants.RegionHeight / 2.0)
+        /// Returns Vector3.Zero when the heightmap has not been set rather
+        /// than null due to historical behaviour of incoming avatars and
+        /// objects rezzing at the ZERO_VECTOR corner of a region due to lag
+        /// and making a distinction from a hypothetical 1-dimensional region
+        /// i.e. one that has a z axis but no effective x/y axis which would
+        /// have a Center value of Vector3(0, 0, Constants.RegionHeight / 2.0)
         /// </remarks>
-        public Vector3d Center
+        public Vector3 Center
         {
             get
             {
                 if (Heightmap == null)
                 {
-                    return Vector3d.Zero;
+                    return Vector3.Zero;
                 }
                 else
                 {
-                    return new Vector3d(
-                            Heightmap.Width / 2.0,
-                            Heightmap.Height / 2.0,
-                            Constants.RegionHeight / 2.0);
+                    return new Vector3(
+                            (float)(Heightmap.Width / 2.0),
+                            (float)(Heightmap.Height / 2.0),
+                            (float)(Constants.RegionHeight / 2.0));
                 }
             }
         }
