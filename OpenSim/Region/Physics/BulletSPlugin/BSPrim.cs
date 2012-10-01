@@ -58,7 +58,7 @@ public sealed class BSPrim : BSPhysObject
     private OMV.Vector3 _size;  // the multiplier for each mesh dimension as passed by the user
     private OMV.Vector3 _scale; // the multiplier for each mesh dimension for the mesh as created by the meshmerizer
 
-    private bool _stopped;
+    private bool _stopped = false;
     private bool _grabbed;
     private bool _isSelected;
     private bool _isVolumeDetect;
