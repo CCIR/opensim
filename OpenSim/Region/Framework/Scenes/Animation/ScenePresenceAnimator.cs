@@ -421,7 +421,7 @@ namespace OpenSim.Region.Framework.Scenes.Animation
 //                    CurrentMovementAnimation, m_scenePresence.Name);
 
                 if(PreviousMovementAnimation != CurrentMovementAnimation)
-                TrySetMovementAnimation(CurrentMovementAnimation);
+                    TrySetMovementAnimation(CurrentMovementAnimation);
 
                 PreviousMovementAnimation = CurrentMovementAnimation;
             }
