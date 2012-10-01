@@ -1027,15 +1027,33 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                     )
                 )
                 {
-                    foreach (object thing in stop.Data)
-                    {
-                        targetPresence.Animator.RemoveAnimation(
-                                (LSL_String)thing);
-                    }
                     foreach (object thing in start.Data)
                     {
-                        targetPresence.Animator.AddAnimation(
-                                (LSL_String)thing, m_host.UUID);
+                        UUID animID = LSL_Api.InventoryKey(m_host,
+                                (LSL_String)thing, (int)AssetType.Animation);
+                        if (animID == UUID.Zero)
+                        {
+                            targetPresence.Animator.AddAnimation(
+                                    (LSL_String)thing, m_host.UUID);
+                        }
+                        else
+                        {
+                            targetPresence.Animator.AddAnimation(animID,
+                                    m_host.UUID);
+                        }
+                    }
+                    foreach (object thing in stop.Data)
+                    {
+                        UUID animID = LSL_Api.KeyOrName(m_host, (LSL_String)thing);
+                        if (animID == UUID.Zero)
+                        {
+                            targetPresence.Animator.RemoveAnimation(
+                                    (LSL_String)thing);
+                        }
+                        else
+                        {
+                            targetPresence.Animator.RemoveAnimation(animID);
+                        }
                     }
                 }
                 else
