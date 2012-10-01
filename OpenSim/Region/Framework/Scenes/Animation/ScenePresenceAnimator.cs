@@ -55,6 +55,11 @@ namespace OpenSim.Region.Framework.Scenes.Animation
         /// The current movement animation
         /// </value>
         public string CurrentMovementAnimation { get; private set; }
+
+        /// <summary>
+        /// The previous movement animation.
+        /// </summary>
+        private string PreviousMovementAnimation { get; set; }
         
         private int m_animTickFall;
         public int m_animTickJump;		// ScenePresence has to see this to control +Z force
@@ -78,6 +83,7 @@ namespace OpenSim.Region.Framework.Scenes.Animation
         {
             m_scenePresence = sp;
             CurrentMovementAnimation = "CROUCH";
+            PreviousMovementAnimation = "";
         }
         
         public void AddAnimation(UUID animID, UUID objectID)
@@ -414,7 +420,10 @@ namespace OpenSim.Region.Framework.Scenes.Animation
 //                    "[SCENE PRESENCE ANIMATOR]: Determined animation {0} for {1} in UpdateMovementAnimations()",
 //                    CurrentMovementAnimation, m_scenePresence.Name);
 
+                if(PreviousMovementAnimation != CurrentMovementAnimation)
                 TrySetMovementAnimation(CurrentMovementAnimation);
+
+                PreviousMovementAnimation = CurrentMovementAnimation;
             }
         }
 
