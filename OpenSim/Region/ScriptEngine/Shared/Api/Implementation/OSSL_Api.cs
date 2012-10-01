@@ -1055,6 +1055,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                             targetPresence.Animator.RemoveAnimation(animID);
                         }
                     }
+
+                    targetPresence.Animator.SendAnimPack();
                 }
                 else
                 {
