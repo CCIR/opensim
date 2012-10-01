@@ -988,7 +988,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             Animate(target, start, stop, false);
         }
 
-        public void osForceAnimate(string target, LSL_List start, LSL_List stop)
+        public void osForceAnimate(string target, LSL_List start,
+                LSL_List stop)
         {
             CheckThreatLevel(ThreatLevel.VeryHigh, "osForceAnimate");
 
@@ -997,43 +998,50 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             Animate(target, start, stop, true);
         }
 
-        private void Animate(string target, LSL_List start, LSL_List stop, bool force)
+        private void Animate(string target, LSL_List start, LSL_List stop,
+                bool force)
         {
             UUID targetUUID;
             ScenePresence targetPresence;
-            if ((start.Length > 0 || stop.Length > 0) && UUID.TryParse(target, out targetUUID) && targetUUID != UUID.Zero && World.TryGetScenePresence(targetUUID, out targetPresence))
+            if ((start.Length > 0 || stop.Length > 0) &&
+                    UUID.TryParse(target, out targetUUID) &&
+                    targetUUID != UUID.Zero &&
+                    World.TryGetScenePresence(targetUUID, out targetPresence))
             {
                 INPCModule npcModule = World.RequestModuleInterface<INPCModule>();
-                bool isNPC = npcModule != null && npcModule.IsNPC(targetUUID, World);
+                bool isNPC = npcModule != null && npcModule.IsNPC(targetUUID,
+                        World);
+                // if force is true, the other checks will be bypassed
                 if (
-                    force || // if this is true, the other checks will be bypassed
+                    force ||
                     (
-                        (// if NPC, check for NPC perms
-                            isNPC &&
-                            npcModule.CheckPermissions(targetUUID, m_host.OwnerID)
-                        ) ||
-                        ( // if not NPC,
-                    // check the perms granter is the avatar
-                    // and that we have animation perms
-                            !isNPC &&
-                            m_item.PermsGranter == targetUUID &&
-                            (m_item.PermsMask & ScriptBaseClass.PERMISSION_TRIGGER_ANIMATION) != 0
+                    // if NPC, check for NPC perms
+                        (isNPC && npcModule.CheckPermissions(targetUUID,
+                            m_host.OwnerID)) ||
+                    // if not NPC, check the perms granter is the avatar and
+                    // that we have animation perms
+                        (!isNPC && m_item.PermsGranter == targetUUID &&
+                            (m_item.PermsMask &
+                            ScriptBaseClass.PERMISSION_TRIGGER_ANIMATION) != 0
                         )
                     )
                 )
                 {
                     foreach (object thing in stop.Data)
                     {
-                        targetPresence.Animator.RemoveAnimation((LSL_String)thing);
+                        targetPresence.Animator.RemoveAnimation(
+                                (LSL_String)thing);
                     }
                     foreach (object thing in start.Data)
                     {
-                        targetPresence.Animator.AddAnimation((LSL_String)thing, m_host.UUID);
+                        targetPresence.Animator.AddAnimation(
+                                (LSL_String)thing, m_host.UUID);
                     }
                 }
                 else
                 {
-                    OSSLShoutError(string.Format("Cannot animate {0}", targetUUID));
+                    OSSLShoutError(string.Format("Cannot animate {0}",
+                            targetUUID));
                 }
             }
         }

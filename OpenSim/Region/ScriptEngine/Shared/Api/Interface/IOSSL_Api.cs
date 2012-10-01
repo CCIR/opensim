@@ -158,7 +158,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         void osAvatarStopAnimation(string avatar, string animation);
 
         /// <summary>
-        /// Starts and Stops the listed animations, requiring PERMISSION_TRIGGER_ANIMATION for agents.
+        /// Starts and Stops the listed animations, requiring
+        /// PERMISSION_TRIGGER_ANIMATION for agents.
         /// </summary>
         /// <remarks>Stop list is processed before Start list</remarks>
         /// <param name="target">avatar key</param>
@@ -167,7 +168,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         void osAnimate(string target, LSL_List start, LSL_List stop);
 
         /// <summary>
-        /// Starts and Stops the listed animations, bypassing permissions checks.
+        /// Starts and Stops the listed animations, bypassing permissions
+        /// checks.
         /// </summary>
         /// <remarks>Stop list is processed before Start list</remarks>
         /// <param name="target">avatar key</param>
