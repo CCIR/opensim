@@ -325,8 +325,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             UUID key;
 
             // if we can parse the string as a key, use it.
-            // else try to locate the name in inventory of object. found returns key,
-            // not found returns UUID.Zero
+            // else try to locate the name in inventory of object.
+            // found returns key, not found returns UUID.Zero.
             if (!UUID.TryParse(k, out key))
             {
                 TaskInventoryItem item = host.Inventory.GetInventoryItem(k);
