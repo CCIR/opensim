@@ -161,7 +161,6 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         /// Starts and Stops the listed animations, requiring
         /// PERMISSION_TRIGGER_ANIMATION for agents.
         /// </summary>
-        /// <remarks>Stop list is processed before Start list</remarks>
         /// <param name="target">avatar key</param>
         /// <param name="start">list of animations to start</param>
         /// <param name="stop">list of animations to stop</param>
@@ -171,7 +170,6 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         /// Starts and Stops the listed animations, bypassing permissions
         /// checks.
         /// </summary>
-        /// <remarks>Stop list is processed before Start list</remarks>
         /// <param name="target">avatar key</param>
         /// <param name="start">list of animations to start</param>
         /// <param name="stop">list of animations to stop</param>
