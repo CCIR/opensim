@@ -648,7 +648,7 @@ namespace OpenSim.Framework.Servers.HttpServer
                 // Every month or so this will wrap and give bad numbers, not really a problem
                 // since its just for reporting
                 int tickdiff = requestEndTick - requestStartTick;
-                if (tickdiff > 3000)
+                if (tickdiff > 3000 && requestHandler.Name != "GetTexture")
                 {
                     m_log.InfoFormat(
                         "[BASE HTTP SERVER]: Slow handling of {0} {1} {2} {3} {4} from {5} took {6}ms",
@@ -727,14 +727,14 @@ namespace OpenSim.Framework.Servers.HttpServer
                     const int sampleLength = 80;
                     char[] sampleChars = new char[sampleLength];
                     reader.Read(sampleChars, 0, sampleLength);
-                    output = string.Format("[BASE HTTP SERVER]: {0}...", new string(sampleChars).Replace("\n", @"\n"));
+                    output = new string(sampleChars);
                 }
                 else
                 {
-                    output = string.Format("[BASE HTTP SERVER]: {0}", reader.ReadToEnd());
+                    output = reader.ReadToEnd();
                 }
 
-                m_log.Debug(output);
+                m_log.DebugFormat("[BASE HTTP SERVER]: {0}...", output.Replace("\n", @"\n"));
             }
         }
 
