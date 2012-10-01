@@ -295,7 +295,12 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
         protected UUID InventoryKey(string name, int type)
         {
-            TaskInventoryItem item = m_host.Inventory.GetInventoryItem(name);
+            return InventoryKey(m_host, name, type);
+        }
+
+        public static UUID InventoryKey(SceneObjectPart host, string name, int type)
+        {
+            TaskInventoryItem item = host.Inventory.GetInventoryItem(name);
 
             if (item != null && item.Type == type)
                 return item.AssetID;
@@ -312,6 +317,11 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
         /// <returns></returns>
         protected UUID KeyOrName(string k)
         {
+            return KeyOrName(m_host, k);
+        }
+
+        public static UUID KeyOrName(SceneObjectPart host, string k)
+        {
             UUID key;
 
             // if we can parse the string as a key, use it.
@@ -319,7 +329,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             // not found returns UUID.Zero
             if (!UUID.TryParse(k, out key))
             {
-                TaskInventoryItem item = m_host.Inventory.GetInventoryItem(k);
+                TaskInventoryItem item = host.Inventory.GetInventoryItem(k);
 
                 if (item != null)
                     key = item.AssetID;
