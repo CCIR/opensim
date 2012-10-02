@@ -289,16 +289,6 @@ namespace OpenSim.Region.ScriptEngine.Shared.ScriptBase
             m_OSSL_Functions.osAvatarStopAnimation(avatar, animation);
         }
 
-        public void osAnimate(string target, LSL_List start, LSL_List stop)
-        {
-            m_OSSL_Functions.osAnimate(target, start, stop);
-        }
-
-        public void osForceAnimate(string target, LSL_List start, LSL_List stop)
-        {
-            m_OSSL_Functions.osForceAnimate(target, start, stop);
-        }
-
         #region Attachment commands
 
         public void osForceAttachToAvatar(int attachmentPoint)
