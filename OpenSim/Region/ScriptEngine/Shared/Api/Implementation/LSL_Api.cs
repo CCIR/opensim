@@ -2461,6 +2461,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
         public void llStopSound()
         {
             m_host.AddScriptLPS(1);
+            m_host.AdjustSoundGain(0);
             if (m_host.ParentGroup.LoopSoundSlavePrims.Contains(m_host))
             {
                 if (m_host.ParentGroup.LoopSoundMasterPrim == m_host)
