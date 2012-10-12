@@ -3814,6 +3814,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
         public LSL_String llGetLinkName(int linknum)
         {
             m_host.AddScriptLPS(1);
+            // simplest case, this prims link number
+            if (linknum == m_host.LinkNum || linknum == ScriptBaseClass.LINK_THIS)
+                return m_host.Name;
+
             // parse for sitting avatare-names
             List<String> nametable = new List<String>();
             World.ForEachRootScenePresence(delegate(ScenePresence presence)
@@ -3836,10 +3840,6 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 if (linknum > m_host.ParentGroup.PrimCount && linknum <= totalprims)
                     return nametable[totalprims - linknum];
             }
-
-            // simplest case, this prims link number
-            if (m_host.LinkNum == linknum)
-                return m_host.Name;
 
             // Single prim
             if (m_host.LinkNum == 0)
