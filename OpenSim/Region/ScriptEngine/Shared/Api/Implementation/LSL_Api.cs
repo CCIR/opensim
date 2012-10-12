@@ -3805,7 +3805,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
         {
             m_host.AddScriptLPS(1);
             // simplest case, this prims link number
-            if (m_host.LinkNum == linknum)
+            if (linknum == m_host.LinkNum)
                 return m_host.Name;
 
             // parse for sitting avatare-names
