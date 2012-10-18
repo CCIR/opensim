@@ -70,7 +70,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             IScriptModuleComms comms = scene.RequestModuleInterface<IScriptModuleComms>();
             if (comms != null)
             {
-                comms.RegisterScriptInvocation( this, "llAttachToAvatarTemp");
+                comms.RegisterScriptInvocations(this);
                 m_log.DebugFormat("[TEMP ATTACHS]: Registered script functions");
                 m_console = scene.RequestModuleInterface<IRegionConsole>();
 
@@ -130,7 +130,8 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             SendConsoleOutput(agentID, String.Format("auto_grant_attach_perms set to {0}", val));
         }
 
-        private int llAttachToAvatarTemp(UUID host, UUID script, int attachmentPoint)
+        [ScriptInvocation]
+        public int llAttachToAvatarTemp(UUID host, UUID script, int attachmentPoint)
         {
             SceneObjectPart hostPart = m_scene.GetSceneObjectPart(host);
 
