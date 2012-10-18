@@ -141,10 +141,6 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             if (hostPart.ParentGroup.IsAttachment)
                 return 0;
 
-            IAttachmentsModule attachmentsModule = m_scene.RequestModuleInterface<IAttachmentsModule>();
-            if (attachmentsModule == null)
-                return 0;
-
             TaskInventoryItem item = hostPart.Inventory.GetInventoryItem(script);
             if (item == null)
                 return 0;
@@ -155,7 +151,16 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             ScenePresence target;
             if (!m_scene.TryGetScenePresence(item.PermsGranter, out target))
                 return 0;
-            
+
+            return AttachToOtherAvatarTemp(hostPart, target, attachmentPoint);
+        }
+
+        private int AttachToOtherAvatarTemp(SceneObjectPart hostPart, ScenePresence target, int attachmentPoint)
+        {
+            IAttachmentsModule attachmentsModule = m_scene.RequestModuleInterface<IAttachmentsModule>();
+            if (attachmentsModule == null)
+                return 0;
+
             if (target.UUID != hostPart.ParentGroup.OwnerID)
             {
                 uint effectivePerms = hostPart.ParentGroup.GetEffectivePermissions();
