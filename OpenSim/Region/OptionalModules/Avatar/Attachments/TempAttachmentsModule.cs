@@ -124,7 +124,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
                 SendConsoleOutput(agentID, "Command parameter error");
                 return;
             }
-             
+
             m_scene.StoreExtraSetting("auto_grant_attach_perms", val);
 
             SendConsoleOutput(agentID, String.Format("auto_grant_attach_perms set to {0}", val));
