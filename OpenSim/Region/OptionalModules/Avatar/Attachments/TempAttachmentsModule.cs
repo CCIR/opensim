@@ -152,7 +152,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             if (!m_scene.TryGetScenePresence(item.PermsGranter, out target))
                 return 0;
 
-            return AttachToOtherAvatarTemp(hostPart, target, attachmentPoint);
+            return AttachToOtherAvatarTemp(hostPart.ParentGroup, target, attachmentPoint);
         }
 
         [ScriptInvocation]
@@ -174,28 +174,28 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             if (!m_scene.TryGetScenePresence(otherAvatarID, out target))
                 return 0;
 
-            return AttachToOtherAvatarTemp(hostPart, target, attachmentPoint);
+            return AttachToOtherAvatarTemp(hostPart.ParentGroup, target, attachmentPoint);
         }
 
-        private int AttachToOtherAvatarTemp(SceneObjectPart hostPart, ScenePresence target, int attachmentPoint)
+        private int AttachToOtherAvatarTemp(SceneObjectGroup attachment, ScenePresence target, int attachmentPoint)
         {
             IAttachmentsModule attachmentsModule = m_scene.RequestModuleInterface<IAttachmentsModule>();
             if (attachmentsModule == null)
                 return 0;
 
-            if (target.UUID != hostPart.ParentGroup.OwnerID)
+            if (target.UUID != attachment.OwnerID)
             {
-                uint effectivePerms = hostPart.ParentGroup.GetEffectivePermissions();
+                uint effectivePerms = attachment.GetEffectivePermissions();
 
                 if ((effectivePerms & (uint)PermissionMask.Transfer) == 0)
                     return 0;
 
-                hostPart.ParentGroup.SetOwnerId(target.UUID);
-                hostPart.ParentGroup.SetRootPartOwner(hostPart.ParentGroup.RootPart, target.UUID, target.ControllingClient.ActiveGroupId);
+                attachment.SetOwnerId(target.UUID);
+                attachment.SetRootPartOwner(attachment.RootPart, target.UUID, target.ControllingClient.ActiveGroupId);
 
                 if (m_scene.Permissions.PropagatePermissions())
                 {
-                    foreach (SceneObjectPart child in hostPart.ParentGroup.Parts)
+                    foreach (SceneObjectPart child in attachment.Parts)
                     {
                         child.Inventory.ChangeInventoryOwner(target.UUID);
                         child.TriggerScriptChangedEvent(Changed.OWNER);
@@ -203,15 +203,15 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
                     }
                 }
 
-                hostPart.ParentGroup.RootPart.ObjectSaleType = 0;
-                hostPart.ParentGroup.RootPart.SalePrice = 10;
+                attachment.RootPart.ObjectSaleType = 0;
+                attachment.RootPart.SalePrice = 10;
 
-                hostPart.ParentGroup.HasGroupChanged = true;
-                hostPart.ParentGroup.RootPart.SendPropertiesToClient(target.ControllingClient);
-                hostPart.ParentGroup.RootPart.ScheduleFullUpdate();
+                attachment.HasGroupChanged = true;
+                attachment.RootPart.SendPropertiesToClient(target.ControllingClient);
+                attachment.RootPart.ScheduleFullUpdate();
             }
 
-            return attachmentsModule.AttachObject(target, hostPart.ParentGroup, (uint)attachmentPoint, false, true) ? 1 : 0;
+            return attachmentsModule.AttachObject(target, attachment, (uint)attachmentPoint, false, true) ? 1 : 0;
         }
     }
 }
