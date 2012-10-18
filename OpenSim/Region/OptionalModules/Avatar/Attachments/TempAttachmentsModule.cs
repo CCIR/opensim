@@ -155,6 +155,28 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             return AttachToOtherAvatarTemp(hostPart, target, attachmentPoint);
         }
 
+        [ScriptInvocation]
+        public int osForceAttachToOtherAvatarTemp(UUID host, UUID script, string other, int attachmentPoint)
+        {
+            SceneObjectPart hostPart = m_scene.GetSceneObjectPart(host);
+
+            if (hostPart == null)
+                return 0;
+
+            if (hostPart.ParentGroup.IsAttachment)
+                return 0;
+
+            UUID otherAvatarID;
+            if (!UUID.TryParse(other, out otherAvatarID))
+                return 0;
+
+            ScenePresence target;
+            if (!m_scene.TryGetScenePresence(otherAvatarID, out target))
+                return 0;
+
+            return AttachToOtherAvatarTemp(hostPart, target, attachmentPoint);
+        }
+
         private int AttachToOtherAvatarTemp(SceneObjectPart hostPart, ScenePresence target, int attachmentPoint)
         {
             IAttachmentsModule attachmentsModule = m_scene.RequestModuleInterface<IAttachmentsModule>();
