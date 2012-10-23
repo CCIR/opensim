@@ -139,25 +139,32 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
                 "Objects",
                 false,
                 "show object uuid",
-                "show object uuid <UUID>",
-                "Show details of a scene object with the given UUID", HandleShowObjectByUuid);
+                "show object uuid [--full] <UUID>",
+                "Show details of a scene object with the given UUID",
+                "The --full option will print out information on all the parts of the object.\n"
+                    + "For yet more detailed part information, use the \"show part\" commands.",
+                HandleShowObjectByUuid);
 
             m_console.Commands.AddCommand(
                 "Objects",
                 false,
                 "show object name",
-                "show object name [--regex] <name>",
+                "show object name [--full] [--regex] <name>",
                 "Show details of scene objects with the given name.",
-                "If --regex is specified then the name is treatead as a regular expression",
+                "The --full option will print out information on all the parts of the object.\n"
+                    + "For yet more detailed part information, use the \"show part\" commands.\n"
+                    + "If --regex is specified then the name is treatead as a regular expression.",
                 HandleShowObjectByName);
 
             m_console.Commands.AddCommand(
                 "Objects",
                 false,
                 "show object pos",
-                "show object pos <start-coord> to <end-coord>",
+                "show object pos [--full] <start-coord> to <end-coord>",
                 "Show details of scene objects within the given area.",
-                "Each component of the coord is comma separated.  There must be no spaces between the commas.\n"
+                "The --full option will print out information on all the parts of the object.\n"
+                    + "For yet more detailed part information, use the \"show part\" commands.\n"
+                    + "Each component of the coord is comma separated.  There must be no spaces between the commas.\n"
                     + "If you don't care about the z component you can simply omit it.\n"
                     + "If you don't care about the x or y components then you can leave them blank (though a comma is still required)\n"
                     + "If you want to specify the maxmimum value of a component then you can use ~ instead of a number\n"
@@ -216,7 +223,12 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
 //            m_log.DebugFormat("[OBJECTS COMMANDS MODULE]: REGION {0} LOADED", scene.RegionInfo.RegionName);
         }
 
-        private void OutputSogsToConsole(Predicate<SceneObjectGroup> searchPredicate)
+        /// <summary>
+        /// Outputs the sogs to console.
+        /// </summary>
+        /// <param name='searchPredicate'></param>
+        /// <param name='showFull'>If true then output all part details.  If false then output summary.</param>
+        private void OutputSogsToConsole(Predicate<SceneObjectGroup> searchPredicate, bool showFull)
         {
             List<SceneObjectGroup> sceneObjects = m_scene.GetSceneObjectGroups().FindAll(searchPredicate);
 
@@ -224,7 +236,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
 
             foreach (SceneObjectGroup so in sceneObjects)
             {
-                AddSceneObjectReport(sb, so);
+                AddSceneObjectReport(sb, so, showFull);
                 sb.Append("\n");
             }
 
@@ -233,7 +245,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             m_console.OutputFormat(sb.ToString());
         }
 
-        private void OutputSopsToConsole(Predicate<SceneObjectPart> searchPredicate)
+        private void OutputSopsToConsole(Predicate<SceneObjectPart> searchPredicate, bool showFull)
         {
             List<SceneObjectGroup> sceneObjects = m_scene.GetSceneObjectGroups();
             List<SceneObjectPart> parts = new List<SceneObjectPart>();
@@ -244,7 +256,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
 
             foreach (SceneObjectPart part in parts)
             {
-                AddScenePartReport(sb, part);
+                AddScenePartReport(sb, part, showFull);
                 sb.Append("\n");
             }
 
@@ -253,21 +265,26 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             m_console.OutputFormat(sb.ToString());
         }
 
-        private void HandleShowObjectByUuid(string module, string[] cmd)
+        private void HandleShowObjectByUuid(string module, string[] cmdparams)
         {
             if (!(m_console.ConsoleScene == null || m_console.ConsoleScene == m_scene))
                 return;
 
-            if (cmd.Length < 4)
+            bool showFull = false;
+            OptionSet options = new OptionSet().Add("full", v => showFull = v != null );
+
+            List<string> mainParams = options.Parse(cmdparams);
+
+            if (mainParams.Count < 4)
             {
                 m_console.OutputFormat("Usage: show object uuid <uuid>");
                 return;
             }
 
             UUID objectUuid;
-            if (!UUID.TryParse(cmd[3], out objectUuid))
+            if (!UUID.TryParse(mainParams[3], out objectUuid))
             {
-                m_console.OutputFormat("{0} is not a valid uuid", cmd[3]);
+                m_console.OutputFormat("{0} is not a valid uuid", mainParams[3]);
                 return;
             }
 
@@ -280,7 +297,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             }
 
             StringBuilder sb = new StringBuilder();
-            AddSceneObjectReport(sb, so);
+            AddSceneObjectReport(sb, so, showFull);
 
             m_console.OutputFormat(sb.ToString());
         }
@@ -290,14 +307,17 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             if (!(m_console.ConsoleScene == null || m_console.ConsoleScene == m_scene))
                 return;
 
+            bool showFull = false;
             bool useRegex = false;
-            OptionSet options = new OptionSet().Add("regex", v=> useRegex = v != null );
+            OptionSet options = new OptionSet();
+            options.Add("full", v => showFull = v != null );
+            options.Add("regex", v => useRegex = v != null );
 
             List<string> mainParams = options.Parse(cmdparams);
 
             if (mainParams.Count < 4)
             {
-                m_console.OutputFormat("Usage: show object name [--regex] <name>");
+                m_console.OutputFormat("Usage: show object name [--full] [--regex] <name>");
                 return;
             }
 
@@ -315,7 +335,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
                 searchPredicate = so => so.Name == name;
             }
 
-            OutputSogsToConsole(searchPredicate);
+            OutputSogsToConsole(searchPredicate, showFull);
         }
 
         private void HandleShowObjectByPos(string module, string[] cmdparams)
@@ -323,9 +343,14 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             if (!(m_console.ConsoleScene == null || m_console.ConsoleScene == m_scene))
                 return;
 
-            if (cmdparams.Length < 5)
+            bool showFull = false;
+            OptionSet options = new OptionSet().Add("full", v => showFull = v != null );
+
+            List<string> mainParams = options.Parse(cmdparams);
+
+            if (mainParams.Count < 5)
             {
-                m_console.OutputFormat("Usage: show object pos <start-coord> to <end-coord>");
+                m_console.OutputFormat("Usage: show object pos [--full] <start-coord> to <end-coord>");
                 return;
             }
 
@@ -337,24 +362,30 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             Predicate<SceneObjectGroup> searchPredicate
                 = so => Util.IsInsideBox(so.AbsolutePosition, startVector, endVector);
 
-            OutputSogsToConsole(searchPredicate);
+            OutputSogsToConsole(searchPredicate, showFull);
         }
 
-        private void HandleShowPartByUuid(string module, string[] cmd)
+        private void HandleShowPartByUuid(string module, string[] cmdparams)
         {
             if (!(m_console.ConsoleScene == null || m_console.ConsoleScene == m_scene))
                 return;
 
-            if (cmd.Length < 4)
+//            bool showFull = false;
+            OptionSet options = new OptionSet();
+//            options.Add("full", v => showFull = v != null );
+
+            List<string> mainParams = options.Parse(cmdparams);
+
+            if (mainParams.Count < 4)
             {
-                m_console.OutputFormat("Usage: show part uuid <uuid>");
+                m_console.OutputFormat("Usage: show part uuid [--full] <uuid>");
                 return;
             }
 
             UUID objectUuid;
-            if (!UUID.TryParse(cmd[3], out objectUuid))
+            if (!UUID.TryParse(mainParams[3], out objectUuid))
             {
-                m_console.OutputFormat("{0} is not a valid uuid", cmd[3]);
+                m_console.OutputFormat("{0} is not a valid uuid", mainParams[3]);
                 return;
             }
 
@@ -367,7 +398,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             }
 
             StringBuilder sb = new StringBuilder();
-            AddScenePartReport(sb, sop);
+            AddScenePartReport(sb, sop, true);
 
             m_console.OutputFormat(sb.ToString());
         }
@@ -377,13 +408,19 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             if (!(m_console.ConsoleScene == null || m_console.ConsoleScene == m_scene))
                 return;
 
-            if (cmdparams.Length < 5)
+//            bool showFull = false;
+            OptionSet options = new OptionSet();
+//            options.Add("full", v => showFull = v != null );
+
+            List<string> mainParams = options.Parse(cmdparams);
+
+            if (mainParams.Count < 5)
             {
-                m_console.OutputFormat("Usage: show part pos <start-coord> to <end-coord>");
+                m_console.OutputFormat("Usage: show part pos [--full] <start-coord> to <end-coord>");
                 return;
             }
 
-            string rawConsoleStartVector = cmdparams[3];
+            string rawConsoleStartVector = mainParams[3];
             Vector3 startVector;
 
             if (!ConsoleUtil.TryParseConsoleMinVector(rawConsoleStartVector, out startVector))
@@ -392,7 +429,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
                 return;
             }
 
-            string rawConsoleEndVector = cmdparams[5];
+            string rawConsoleEndVector = mainParams[5];
             Vector3 endVector;
 
             if (!ConsoleUtil.TryParseConsoleMaxVector(rawConsoleEndVector, out endVector))
@@ -401,7 +438,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
                 return;
             }
 
-            OutputSopsToConsole(sop => Util.IsInsideBox(sop.AbsolutePosition, startVector, endVector));
+            OutputSopsToConsole(sop => Util.IsInsideBox(sop.AbsolutePosition, startVector, endVector), true);
         }
 
         private void HandleShowPartByName(string module, string[] cmdparams)
@@ -409,14 +446,17 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
             if (!(m_console.ConsoleScene == null || m_console.ConsoleScene == m_scene))
                 return;
 
+//            bool showFull = false;
             bool useRegex = false;
-            OptionSet options = new OptionSet().Add("regex", v=> useRegex = v != null );
+            OptionSet options = new OptionSet();
+//            options.Add("full", v => showFull = v != null );
+            options.Add("regex", v => useRegex = v != null );
 
             List<string> mainParams = options.Parse(cmdparams);
 
             if (mainParams.Count < 4)
             {
-                m_console.OutputFormat("Usage: show part name [--regex] <name>");
+                m_console.OutputFormat("Usage: show part name [--full] [--regex] <name>");
                 return;
             }
 
@@ -434,31 +474,112 @@ namespace OpenSim.Region.CoreModules.World.Objects.Commands
                 searchPredicate = sop => sop.Name == name;
             }
 
-            OutputSopsToConsole(searchPredicate);
+            OutputSopsToConsole(searchPredicate, true);
         }
 
-        private StringBuilder AddSceneObjectReport(StringBuilder sb, SceneObjectGroup so)
+        /// <summary>
+        /// Append a scene object report to an input StringBuilder
+        /// </summary>
+        /// <returns></returns>
+        /// <param name='sb'></param>
+        /// <param name='so'</param>
+        /// <param name='showFull'>
+        /// If true then information on all parts of an object is appended.
+        /// If false then only summary information about an object is appended.
+        /// </param>
+        private StringBuilder AddSceneObjectReport(StringBuilder sb, SceneObjectGroup so, bool showFull)
         {
-            sb.AppendFormat("Name:        {0}\n", so.Name);
-            sb.AppendFormat("Description: {0}\n", so.Description);
-            sb.AppendFormat("Location:    {0} @ {1}\n", so.AbsolutePosition, so.Scene.RegionInfo.RegionName);
-            sb.AppendFormat("Parts:       {0}\n", so.PrimCount);
-            sb.AppendFormat("Flags:       {0}\n", so.RootPart.Flags);
+            if (showFull)
+            {
+                foreach (SceneObjectPart sop in so.Parts)
+                {
+                    AddScenePartReport(sb, sop, false);
+                    sb.Append("\n");
+                }
+            }
+            else
+            {
+                AddSummarySceneObjectReport(sb, so);
+            }
 
             return sb;
         }
 
-        private StringBuilder AddScenePartReport(StringBuilder sb, SceneObjectPart sop)
+        private StringBuilder AddSummarySceneObjectReport(StringBuilder sb, SceneObjectGroup so)
         {
-            sb.AppendFormat("Name:        {0}\n", sop.Name);
-            sb.AppendFormat("Description: {0}\n", sop.Description);
-            sb.AppendFormat("Location:    {0} @ {1}\n", sop.AbsolutePosition, sop.ParentGroup.Scene.RegionInfo.RegionName);
-            sb.AppendFormat("Parent:      {0}",
-                sop.IsRoot ? "Is Root\n" : string.Format("{0} {1}\n", sop.ParentGroup.Name, sop.ParentGroup.UUID));
-            sb.AppendFormat("Link number: {0}\n", sop.LinkNum);
-            sb.AppendFormat("Flags:       {0}\n", sop.Flags);
+            ConsoleDisplayList cdl = new ConsoleDisplayList();
+            cdl.AddRow("Name", so.Name);
+            cdl.AddRow("Descrition", so.Description);
+            cdl.AddRow("Local ID", so.LocalId);
+            cdl.AddRow("UUID", so.UUID);
+            cdl.AddRow("Location", string.Format("{0} @ {1}", so.AbsolutePosition, so.Scene.Name));
+            cdl.AddRow("Parts", so.PrimCount);
+            cdl.AddRow("Flags", so.RootPart.Flags);
 
-            return sb;
+            return sb.Append(cdl.ToString());
+        }
+
+        /// <summary>
+        /// Append a scene object part report to an input StringBuilder
+        /// </summary>
+        /// <returns></returns>
+        /// <param name='sb'></param>
+        /// <param name='sop'</param>
+        /// <param name='showFull'>
+        /// If true then information on each inventory item will be shown.
+        /// If false then only summary inventory information is shown.
+        /// </param>
+        private StringBuilder AddScenePartReport(StringBuilder sb, SceneObjectPart sop, bool showFull)
+        {
+            ConsoleDisplayList cdl = new ConsoleDisplayList();
+            cdl.AddRow("Name", sop.Name);
+            cdl.AddRow("Description", sop.Description);
+            cdl.AddRow("Local ID", sop.LocalId);
+            cdl.AddRow("UUID", sop.UUID);
+            cdl.AddRow("Location",  string.Format("{0} @ {1}", sop.AbsolutePosition, sop.ParentGroup.Scene.Name));
+            cdl.AddRow(
+                "Parent",
+                sop.IsRoot ? "Is Root" : string.Format("{0} {1}", sop.ParentGroup.Name, sop.ParentGroup.UUID));
+            cdl.AddRow("Link number", sop.LinkNum);
+            cdl.AddRow("Flags", sop.Flags);
+
+            object itemsOutput;
+            if (showFull)
+            {
+                StringBuilder itemsSb = new StringBuilder("\n");
+                itemsOutput = AddScenePartItemsReport(itemsSb, sop.Inventory).ToString();
+            }
+            else
+            {
+                itemsOutput = sop.Inventory.Count;
+            }
+
+
+            cdl.AddRow("Items", itemsOutput);
+
+            return sb.Append(cdl.ToString());
+        }
+
+        private StringBuilder AddScenePartItemsReport(StringBuilder sb, IEntityInventory inv)
+        {
+            ConsoleDisplayTable cdt = new ConsoleDisplayTable();
+            cdt.Indent = 2;
+
+            cdt.AddColumn("Name", 50);
+            cdt.AddColumn("Type", 12);
+            cdt.AddColumn("Running", 7);
+            cdt.AddColumn("Item UUID", 36);
+            cdt.AddColumn("Asset UUID", 36);
+
+            foreach (TaskInventoryItem item in inv.GetInventoryItems())
+                cdt.AddRow(
+                    item.Name,
+                    ((InventoryType)item.InvType).ToString(),
+                    (InventoryType)item.InvType == InventoryType.LSL ? item.ScriptRunning.ToString() : "n/a",
+                    item.ItemID.ToString(),
+                    item.AssetID.ToString());
+
+            return sb.Append(cdt.ToString());
         }
 
         private void HandleDeleteObject(string module, string[] cmd)
