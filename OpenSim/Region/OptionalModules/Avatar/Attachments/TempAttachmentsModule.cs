@@ -70,7 +70,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             IScriptModuleComms comms = scene.RequestModuleInterface<IScriptModuleComms>();
             if (comms != null)
             {
-                comms.RegisterScriptInvocation( this, "llAttachToAvatarTemp");
+                comms.RegisterScriptInvocations(this);
                 m_log.DebugFormat("[TEMP ATTACHS]: Registered script functions");
                 m_console = scene.RequestModuleInterface<IRegionConsole>();
 
@@ -124,13 +124,30 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
                 SendConsoleOutput(agentID, "Command parameter error");
                 return;
             }
-             
+
             m_scene.StoreExtraSetting("auto_grant_attach_perms", val);
 
             SendConsoleOutput(agentID, String.Format("auto_grant_attach_perms set to {0}", val));
         }
 
-        private int llAttachToAvatarTemp(UUID host, UUID script, int attachmentPoint)
+        /// <summary>
+        /// Temporarily attach the current object to the permissive avatar.
+        /// </summary>
+        /// <param name="host">
+        /// UUID of the object executing the script.
+        /// </param>
+        /// <param name="script">UUID of the executing script.</param>
+        /// <param name="attachmentPoint">
+        /// Attachment point to attach to.
+        /// </param>
+        /// <returns>zero</returns>
+        /// <remarks>
+        /// The return type strictly should be void, but practice is for
+        /// script comms funcs to return int instead of void.
+        /// see http://wiki.secondlife.com/wiki/LlAttachToAvatarTemp
+        /// </remarks>
+        [ScriptInvocation]
+        public int llAttachToAvatarTemp(UUID host, UUID script, int attachmentPoint)
         {
             SceneObjectPart hostPart = m_scene.GetSceneObjectPart(host);
 
@@ -138,10 +155,6 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
                 return 0;
 
             if (hostPart.ParentGroup.IsAttachment)
-                return 0;
-
-            IAttachmentsModule attachmentsModule = m_scene.RequestModuleInterface<IAttachmentsModule>();
-            if (attachmentsModule == null)
                 return 0;
 
             TaskInventoryItem item = hostPart.Inventory.GetInventoryItem(script);
@@ -154,20 +167,152 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             ScenePresence target;
             if (!m_scene.TryGetScenePresence(item.PermsGranter, out target))
                 return 0;
-            
-            if (target.UUID != hostPart.ParentGroup.OwnerID)
+
+            return AttachToOtherAvatarTemp(hostPart.ParentGroup, target, attachmentPoint);
+        }
+
+        /// <summary>
+        /// Temporarily attach the current object to the specified avatar.
+        /// </summary>
+        /// <param name="host">
+        /// UUID of the object executing the script.
+        /// </param>
+        /// <param name="script">UUID of the executing script.</param>
+        /// <param name="other">UUID of the avatar to attach to.</param>
+        /// <param name="attachmentPoint">
+        /// Attachment point to attach to.
+        /// </param>
+        /// <returns>zero</returns>
+        /// <remarks>
+        /// The return type strictly should be void, but practice is for
+        /// script comms funcs to return int instead of void.
+        /// </remarks>
+        [ScriptInvocation]
+        public int osForceAttachToOtherAvatarTemp(UUID host, UUID script, string other, int attachmentPoint)
+        {
+            SceneObjectPart hostPart = m_scene.GetSceneObjectPart(host);
+
+            if (hostPart == null)
+                return 0;
+
+            if (hostPart.ParentGroup.IsAttachment)
+                return 0;
+
+            UUID otherAvatarID;
+            if (!UUID.TryParse(other, out otherAvatarID))
+                return 0;
+
+            ScenePresence target;
+            if (!m_scene.TryGetScenePresence(otherAvatarID, out target))
+                return 0;
+
+            return AttachToOtherAvatarTemp(hostPart.ParentGroup, target, attachmentPoint);
+        }
+
+        /// <summary>
+        /// Temporarily attaches the specified object contents to the
+        /// specified avatar.
+        /// </summary>
+        /// <param name="host">
+        /// UUID of the object executing the script.
+        /// </param>
+        /// <param name="script">UUID of the executing script.</param>
+        /// <param name="attachmentPoint">
+        /// Attachment point to attach to.
+        /// </param>
+        /// <param name="args">
+        /// A strided list of attachment points and attachment objects.
+        /// </param>
+        /// <returns>zero</returns>
+        /// <remarks>
+        /// The return type strictly should be void, but practice is for
+        /// script comms funcs to return int instead of void.
+        /// </remarks>
+        /// <example>
+        /// default{
+        ///     touch_start(integer t){
+        ///         osForceAttachToOtherAvatarFromInventoryTemp(llDetectedKey(0), [
+        ///             (integer)ATTACH_HEAD, "Box",
+        ///             (integer)ATTACH_RHAND, "Box",
+        ///             (integer)ATTACH_LHAND, "Box"
+        ///         ]);
+        ///     }
+        /// }
+        /// </example>
+        [ScriptInvocation]
+        public int osForceAttachToOtherAvatarFromInventoryTemp(UUID host, UUID script, string other, object[] args)
+        {
+            if (args.Length < 2)
+                return 0;
+
+            SceneObjectPart hostPart = m_scene.GetSceneObjectPart(host);
+
+            if (hostPart == null)
+                return 0;
+
+            if (hostPart.ParentGroup.IsAttachment)
+                return 0;
+
+            UUID otherAvatarID;
+            if (!UUID.TryParse(other, out otherAvatarID))
+                return 0;
+
+            ScenePresence target;
+            if (!m_scene.TryGetScenePresence(otherAvatarID, out target))
+                return 0;
+
+            // this structure enforces the current lack of support for
+            // multi-object attachment points without requiring change of
+            // LSL syntax when support is added.
+            Dictionary<int, TaskInventoryItem> attachments = new Dictionary<int, TaskInventoryItem>();
+            int i = 0;
+            int remaining = args.Length;
+
+            for (i = 0; i < args.Length; i += 2)
             {
-                uint effectivePerms = hostPart.ParentGroup.GetEffectivePermissions();
+                if (args[i] is int && args[i + 1] is string)
+                {
+                    TaskInventoryItem item = hostPart.Inventory.GetInventoryItem((string)args[i + 1]);
+                    if (item != null)
+                    {
+                        attachments[(int)args[i]] = item;
+                    }
+                }
+                remaining -= 2;
+            }
+
+            if (attachments.Count < 1)
+                return 0;
+
+            foreach (KeyValuePair<int, TaskInventoryItem> kvp in attachments)
+            {
+                SceneObjectGroup sog = hostPart.Inventory.GetRezReadySceneObject(kvp.Value);
+                if (sog != null && AttachToOtherAvatarTemp(sog, target, kvp.Key) == 1)
+                    m_scene.AddNewSceneObject(sog, false);
+            }
+
+            return 0;
+        }
+
+        private int AttachToOtherAvatarTemp(SceneObjectGroup attachment, ScenePresence target, int attachmentPoint)
+        {
+            IAttachmentsModule attachmentsModule = m_scene.RequestModuleInterface<IAttachmentsModule>();
+            if (attachmentsModule == null)
+                return 0;
+
+            if (target.UUID != attachment.OwnerID)
+            {
+                uint effectivePerms = attachment.GetEffectivePermissions();
 
                 if ((effectivePerms & (uint)PermissionMask.Transfer) == 0)
                     return 0;
 
-                hostPart.ParentGroup.SetOwnerId(target.UUID);
-                hostPart.ParentGroup.SetRootPartOwner(hostPart.ParentGroup.RootPart, target.UUID, target.ControllingClient.ActiveGroupId);
+                attachment.SetOwnerId(target.UUID);
+                attachment.SetRootPartOwner(attachment.RootPart, target.UUID, target.ControllingClient.ActiveGroupId);
 
                 if (m_scene.Permissions.PropagatePermissions())
                 {
-                    foreach (SceneObjectPart child in hostPart.ParentGroup.Parts)
+                    foreach (SceneObjectPart child in attachment.Parts)
                     {
                         child.Inventory.ChangeInventoryOwner(target.UUID);
                         child.TriggerScriptChangedEvent(Changed.OWNER);
@@ -175,15 +320,15 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
                     }
                 }
 
-                hostPart.ParentGroup.RootPart.ObjectSaleType = 0;
-                hostPart.ParentGroup.RootPart.SalePrice = 10;
+                attachment.RootPart.ObjectSaleType = 0;
+                attachment.RootPart.SalePrice = 10;
 
-                hostPart.ParentGroup.HasGroupChanged = true;
-                hostPart.ParentGroup.RootPart.SendPropertiesToClient(target.ControllingClient);
-                hostPart.ParentGroup.RootPart.ScheduleFullUpdate();
+                attachment.HasGroupChanged = true;
+                attachment.RootPart.SendPropertiesToClient(target.ControllingClient);
+                attachment.RootPart.ScheduleFullUpdate();
             }
 
-            return attachmentsModule.AttachObject(target, hostPart.ParentGroup, (uint)attachmentPoint, false, true) ? 1 : 0;
+            return attachmentsModule.AttachObject(target, attachment, (uint)attachmentPoint, false, true) ? 1 : 0;
         }
     }
 }
