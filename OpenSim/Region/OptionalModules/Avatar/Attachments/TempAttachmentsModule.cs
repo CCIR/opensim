@@ -177,6 +177,61 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             return AttachToOtherAvatarTemp(hostPart.ParentGroup, target, attachmentPoint);
         }
 
+        [ScriptInvocation]
+        public int osForceAttachToOtherAvatarFromInventoryTemp(UUID host, UUID script, string other, object[] args)
+        {
+            if (args.Length < 2)
+                return 0;
+
+            SceneObjectPart hostPart = m_scene.GetSceneObjectPart(host);
+
+            if (hostPart == null)
+                return 0;
+
+            if (hostPart.ParentGroup.IsAttachment)
+                return 0;
+
+            UUID otherAvatarID;
+            if (!UUID.TryParse(other, out otherAvatarID))
+                return 0;
+
+            ScenePresence target;
+            if (!m_scene.TryGetScenePresence(otherAvatarID, out target))
+                return 0;
+
+            // this structure enforces the current lack of support for
+            // multi-object attachment points without requiring change of
+            // LSL syntax when support is added.
+            Dictionary<int, TaskInventoryItem> attachments = new Dictionary<int, TaskInventoryItem>();
+            int i = 0;
+            int remaining = args.Length;
+
+            for (i = 0; i < args.Length; i += 2)
+            {
+                if (args[i] is int && args[i + 1] is string)
+                {
+                    TaskInventoryItem item = hostPart.Inventory.GetInventoryItem((string)args[i + 1]);
+                    if (item != null)
+                    {
+                        attachments[(int)args[i]] = item;
+                    }
+                }
+                remaining -= 2;
+            }
+
+            if (attachments.Count < 1)
+                return 0;
+
+            foreach (KeyValuePair<int, TaskInventoryItem> kvp in attachments)
+            {
+                SceneObjectGroup sog = hostPart.Inventory.GetRezReadySceneObject(kvp.Value);
+                if (sog != null && AttachToOtherAvatarTemp(sog, target, kvp.Key) == 1)
+                    m_scene.AddNewSceneObject(sog, false);
+            }
+
+            return 0;
+        }
+
         private int AttachToOtherAvatarTemp(SceneObjectGroup attachment, ScenePresence target, int attachmentPoint)
         {
             IAttachmentsModule attachmentsModule = m_scene.RequestModuleInterface<IAttachmentsModule>();
