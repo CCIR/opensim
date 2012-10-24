@@ -130,6 +130,22 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             SendConsoleOutput(agentID, String.Format("auto_grant_attach_perms set to {0}", val));
         }
 
+        /// <summary>
+        /// Temporarily attach the current object to the permissive avatar.
+        /// </summary>
+        /// <param name="host">
+        /// UUID of the object executing the script.
+        /// </param>
+        /// <param name="script">UUID of the executing script.</param>
+        /// <param name="attachmentPoint">
+        /// Attachment point to attach to.
+        /// </param>
+        /// <returns>zero</returns>
+        /// <remarks>
+        /// The return type strictly should be void, but practice is for
+        /// script comms funcs to return int instead of void.
+        /// see http://wiki.secondlife.com/wiki/LlAttachToAvatarTemp
+        /// </remarks>
         [ScriptInvocation]
         public int llAttachToAvatarTemp(UUID host, UUID script, int attachmentPoint)
         {
@@ -155,6 +171,22 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             return AttachToOtherAvatarTemp(hostPart.ParentGroup, target, attachmentPoint);
         }
 
+        /// <summary>
+        /// Temporarily attach the current object to the specified avatar.
+        /// </summary>
+        /// <param name="host">
+        /// UUID of the object executing the script.
+        /// </param>
+        /// <param name="script">UUID of the executing script.</param>
+        /// <param name="other">UUID of the avatar to attach to.</param>
+        /// <param name="attachmentPoint">
+        /// Attachment point to attach to.
+        /// </param>
+        /// <returns>zero</returns>
+        /// <remarks>
+        /// The return type strictly should be void, but practice is for
+        /// script comms funcs to return int instead of void.
+        /// </remarks>
         [ScriptInvocation]
         public int osForceAttachToOtherAvatarTemp(UUID host, UUID script, string other, int attachmentPoint)
         {
@@ -177,6 +209,36 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             return AttachToOtherAvatarTemp(hostPart.ParentGroup, target, attachmentPoint);
         }
 
+        /// <summary>
+        /// Temporarily attaches the specified object contents to the
+        /// specified avatar.
+        /// </summary>
+        /// <param name="host">
+        /// UUID of the object executing the script.
+        /// </param>
+        /// <param name="script">UUID of the executing script.</param>
+        /// <param name="attachmentPoint">
+        /// Attachment point to attach to.
+        /// </param>
+        /// <param name="args">
+        /// A strided list of attachment points and attachment objects.
+        /// </param>
+        /// <returns>zero</returns>
+        /// <remarks>
+        /// The return type strictly should be void, but practice is for
+        /// script comms funcs to return int instead of void.
+        /// </remarks>
+        /// <example>
+        /// default{
+        ///     touch_start(integer t){
+        ///         osForceAttachToOtherAvatarFromInventoryTemp(llDetectedKey(0), [
+        ///             (integer)ATTACH_HEAD, "Box",
+        ///             (integer)ATTACH_RHAND, "Box",
+        ///             (integer)ATTACH_LHAND, "Box"
+        ///         ]);
+        ///     }
+        /// }
+        /// </example>
         [ScriptInvocation]
         public int osForceAttachToOtherAvatarFromInventoryTemp(UUID host, UUID script, string other, object[] args)
         {
