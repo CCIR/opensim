@@ -293,6 +293,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
                     sog.CreateScriptInstances(0, true,
                             m_scene.DefaultScriptEngine, 3);
                     sog.ResumeScripts();
+                    m_scene.EventManager.TriggerOnAttach(sog.LocalId, sog.FromItemID, target.UUID);
                 }
             }
 
