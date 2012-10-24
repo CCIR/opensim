@@ -288,7 +288,12 @@ namespace OpenSim.Region.OptionalModules.Avatar.Attachments
             {
                 SceneObjectGroup sog = hostPart.Inventory.GetRezReadySceneObject(kvp.Value);
                 if (sog != null && AttachToOtherAvatarTemp(sog, target, kvp.Key) == 1)
+                {
                     m_scene.AddNewSceneObject(sog, false);
+                    sog.CreateScriptInstances(0, true,
+                            m_scene.DefaultScriptEngine, 3);
+                    sog.ResumeScripts();
+                }
             }
 
             return 0;
