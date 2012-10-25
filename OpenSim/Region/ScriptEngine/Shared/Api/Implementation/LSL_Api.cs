@@ -7678,6 +7678,13 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
                             part.ScheduleFullUpdate();
                             break;
+                        case (int)ScriptBaseClass.OS_PRIM_VELOCITY:
+                            if (remain < 1 || !allowOpenSimParams)
+                                return null;
+                            LSL_Vector velocity = rules.GetVector3Item(idx++);
+                            part.Velocity = velocity;
+                            part.ScheduleTerseUpdate();
+                            break;
                         case (int)ScriptBaseClass.PRIM_LINK_TARGET:
                             if (remain < 3) // setting to 3 on the basis that parsing any usage of PRIM_LINK_TARGET that has nothing following it is pointless.
                                 return null;
@@ -8405,6 +8412,11 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                         res.Add((LSL_Float)part.Shape.ProjectionFOV);
                         res.Add((LSL_Float)part.Shape.ProjectionFocus);
                         res.Add((LSL_Float)part.Shape.ProjectionAmbiance);
+                        break;
+                    case (int)ScriptBaseClass.OS_PRIM_VELOCITY:
+                        if (!allowOpenSimParams)
+                            return null;
+                        res.Add((LSL_Vector)part.Velocity);
                         break;
                     case (int)ScriptBaseClass.PRIM_LINK_TARGET:
                         if(remain < 3)

@@ -861,7 +861,9 @@ namespace OpenSim.Region.Framework.Scenes
             }
         }
 
-        /// <summary></summary>
+        /// <summary>
+        /// Get or set linear velocity. Does not schedule update.
+        /// </summary>
         public Vector3 Velocity
         {
             get
