@@ -7682,6 +7682,13 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                             part.Velocity = velocity;
                             part.ScheduleTerseUpdate();
                             break;
+                        case (int)ScriptBaseClass.OS_PRIM_ACCELERATION:
+                            if (remain < 1)
+                                return null;
+                            LSL_Vector accel = rules.GetVector3Item(idx++);
+                            part.Acceleration = accel;
+                            part.ScheduleTerseUpdate();
+                            break;
                         case (int)ScriptBaseClass.PRIM_LINK_TARGET:
                             if (remain < 3) // setting to 3 on the basis that parsing any usage of PRIM_LINK_TARGET that has nothing following it is pointless.
                                 return null;
@@ -8393,6 +8400,9 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                         break;
                     case (int)ScriptBaseClass.OS_PRIM_VELOCITY:
                         res.Add((LSL_Vector)part.Velocity);
+                        break;
+                    case (int)ScriptBaseClass.OS_PRIM_ACCELERATION:
+                        res.Add((LSL_Vector)part.Acceleration);
                         break;
                     case (int)ScriptBaseClass.PRIM_LINK_TARGET:
                         if(remain < 3)
