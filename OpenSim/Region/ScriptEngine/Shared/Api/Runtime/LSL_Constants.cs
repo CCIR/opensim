@@ -393,6 +393,14 @@ namespace OpenSim.Region.ScriptEngine.Shared.ScriptBase
         /// <see cref="OpenSim.Region.Framework.Scenes.SceneObjectPart.Velocity"/>
         /// </remarks>
         public const int OS_PRIM_VELOCITY = 65032;
+
+        /// <summary>
+        /// Linear acceleration
+        /// </summary>
+        /// <remarks>
+        /// <see cref="OpenSim.Region.Framework.Scenes.SceneObjectPart.Acceleration"/>
+        /// </remarks>
+        public const int OS_PRIM_ACCELERATION = 65033;
         public const int PRIM_POS_LOCAL = 33;
         public const int PRIM_LINK_TARGET = 34;
         public const int PRIM_SLICE = 35;
