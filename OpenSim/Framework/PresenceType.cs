@@ -33,7 +33,14 @@ namespace OpenSim.Framework
     /// </summary>
     public enum PresenceType
     {
+        /// <summary>
+        /// Indicates a ScenePresence is for a user.
+        /// </summary>
         User,
+
+        /// <summary>
+        /// Indicates a ScenePresence is for an NPC.
+        /// </summary>
         Npc
     }
 }

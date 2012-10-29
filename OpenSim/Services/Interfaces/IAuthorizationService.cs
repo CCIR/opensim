@@ -42,7 +42,7 @@ namespace OpenSim.Services.Interfaces
         /// on the region (e.g. they're a visitor via Hypergrid).
         /// </remarks>
         /// <param name="userID"></param>
-        /// <param name="firstName">/param>
+        /// <param name="firstName"></param>
         /// <param name="lastName"></param>
         /// <param name="regionID"></param>
         /// <param name="message"></param>

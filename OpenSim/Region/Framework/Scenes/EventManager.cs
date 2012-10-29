@@ -145,7 +145,7 @@ namespace OpenSim.Region.Framework.Scenes
         /// </summary>
         /// <remarks>
         /// Triggered in <see cref="OpenSim.Region.Framework.Scenes.Scene.AddNewClient"/> which is used by both
-        /// <see cref="OpenSim.Framework.PresenceType.User">users</see> and <see cref="OpenSim.Framework.PresenceType.Npc">NPCs</see>
+        /// user and NPC <see cref="OpenSim.Framework.PresenceType">presence types</see>.
         /// </remarks>
         public event OnNewPresenceDelegate OnNewPresence;
 
@@ -156,7 +156,7 @@ namespace OpenSim.Region.Framework.Scenes
         /// </summary>
         /// <remarks>
         /// Triggered in <see cref="OpenSim.Region.Framework.Scenes.Scene.AddNewClient"/> which is used by both
-        /// <see cref="OpenSim.Framework.PresenceType.User">users</see> and <see cref="OpenSim.Framework.PresenceType.Npc">NPCs</see>
+        /// user and NPC <see cref="OpenSim.Framework.PresenceType">presence types</see>.
         /// 
         /// Triggered under per-agent lock.  So if you want to perform any long-running operations, please
         /// do this on a separate thread.

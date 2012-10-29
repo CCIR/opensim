@@ -64,7 +64,7 @@ namespace OpenSim.Region.Framework.Interfaces
         /// </remarks>
         /// <param name="sp">The presence closing</param>
         /// <param name="saveChanged">Save changed attachments.</param>
-        /// <param name="saveAllScripted">Save attachments with scripts even if they haven't changed.</para>
+        /// <param name="saveAllScripted">Save attachments with scripts even if they haven't changed.</param>
         void DeRezAttachments(IScenePresence sp);
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace OpenSim.Region.Framework.Interfaces
         /// <summary>
         /// Detach the given attachment so that it remains in the user's inventory.
         /// </summary>
-        /// <param name="sp">/param>
+        /// <param name="sp"></param>
         /// <param name="grp">The attachment to detach.</param>
         void DetachSingleAttachmentToInv(IScenePresence sp, SceneObjectGroup grp);
         

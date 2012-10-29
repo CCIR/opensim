@@ -191,7 +191,7 @@ namespace OpenSim.Framework.Servers.HttpServer
         /// Add an HTTP request handler.
         /// </summary>
         /// <param name="handler">OSHttpHandler delegate</param>
-        /// <param name="path">regex object for path matching</parm>
+        /// <param name="path">regex object for path matching</param>
         /// <param name="headers">dictionary containing header names
         /// and regular expressions to match against header values</param>
         public void AddHandler(OSHttpHandler handler)

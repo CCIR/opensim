@@ -134,7 +134,7 @@ namespace OpenSim.Region.Framework.Interfaces
         /// <param name="skipAssets">
         /// If true, the archive is loaded without loading any assets contained within it.  This is useful if the
         /// assets are already known to be present in the grid's asset service.
-        /// </param
+        /// </param>
         /// <param name="requestId">If supplied, this request Id is later returned in the saved event</param>
         void DearchiveRegion(Stream loadStream, bool merge, bool skipAssets, Guid requestId);
     }

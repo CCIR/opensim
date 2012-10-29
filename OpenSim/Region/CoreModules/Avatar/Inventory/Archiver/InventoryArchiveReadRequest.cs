@@ -261,6 +261,7 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         /// <param name="archivePath">
         /// The item archive path to resolve.  The portion of the path passed back is that
         /// which corresponds to the resolved desintation folder.
+        /// </param>
         /// <param name="rootDestinationFolder">
         /// The root folder for the inventory load
         /// </param>

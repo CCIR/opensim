@@ -158,7 +158,7 @@ namespace OpenSim.Framework.Console
         /// <summary>
         /// Convert a minimum vector input from the console to an OpenMetaverse.Vector3
         /// </summary>
-        /// <param name='rawConsoleVector'>/param>
+        /// <param name='rawConsoleVector'></param>
         /// <param name='vector'></param>
         /// <returns></returns>
         public static bool TryParseConsoleMinVector(string rawConsoleVector, out Vector3 vector)
@@ -169,7 +169,7 @@ namespace OpenSim.Framework.Console
         /// <summary>
         /// Convert a maximum vector input from the console to an OpenMetaverse.Vector3
         /// </summary>
-        /// <param name='rawConsoleVector'>/param>
+        /// <param name='rawConsoleVector'></param>
         /// <param name='vector'></param>
         /// <returns></returns>
         public static bool TryParseConsoleMaxVector(string rawConsoleVector, out Vector3 vector)

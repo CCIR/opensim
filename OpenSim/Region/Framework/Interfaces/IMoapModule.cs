@@ -61,7 +61,7 @@ namespace OpenSim.Region.Framework.Interfaces
         /// This is the equivalent of setting a media entry of null
         /// 
         /// <param name="part"></param>
-        /// <param name="face">/param>
+        /// <param name="face"></param>
         void ClearMediaEntry(SceneObjectPart part, int face);
     }
 }

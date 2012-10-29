@@ -59,7 +59,7 @@ namespace OpenSim.Region.Framework.Interfaces
         /// </remarks>
         /// <param name='sp'></param>
         /// <param name='reg'></param>
-        /// <param name='finalDestination'>/param>
+        /// <param name='finalDestination'></param>
         /// <param name='position'></param>
         /// <param name='lookAt'></param>
         /// <param name='teleportFlags'></param>

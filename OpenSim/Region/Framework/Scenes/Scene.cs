@@ -1758,6 +1758,7 @@ namespace OpenSim.Region.Framework.Scenes
         /// If true, then any changes that have not yet been persisted are persisted.  If false,
         /// then the persistence decision is left to the backup code (in some situations, such as object persistence,
         /// it's much more efficient to backup multiple changes at once rather than every single one).
+        /// </param>
         /// <returns></returns>
         public void Backup(bool forced)
         {
@@ -2322,7 +2323,7 @@ namespace OpenSim.Region.Framework.Scenes
         /// </summary>
         /// <param name="group">Object Id</param>
         /// <param name="silent">Suppress broadcasting changes to other clients.</param>
-        /// <param name="removeScripts">If true, then scripts are removed.  If false, then they are only stopped.</para>
+        /// <param name="removeScripts">If true, then scripts are removed.  If false, then they are only stopped.</param>
         public void DeleteSceneObject(SceneObjectGroup group, bool silent, bool removeScripts)
         {            
 //            m_log.DebugFormat("[SCENE]: Deleting scene object {0} {1}", group.Name, group.UUID);

@@ -232,7 +232,7 @@ namespace OpenSim.Region.CoreModules.World.Media.Moap
         /// <summary>
         /// Set the media entry on the face of the given part.
         /// </summary>
-        /// <param name="part">/param>
+        /// <param name="part"></param>
         /// <param name="face"></param>
         /// <param name="me">If null, then the media entry is cleared.</param>
         public void SetMediaEntry(SceneObjectPart part, int face, MediaEntry me)
@@ -358,7 +358,7 @@ namespace OpenSim.Region.CoreModules.World.Media.Moap
         /// Handle an update of media textures.
         /// </summary>
         /// <param name="path">Path on which this request was made</param>
-        /// <param name="omu">/param>
+        /// <param name="omu"></param>
         /// <returns></returns>
         protected string HandleObjectMediaUpdate(string path, ObjectMediaUpdate omu)
         {
@@ -474,8 +474,8 @@ namespace OpenSim.Region.CoreModules.World.Media.Moap
         /// <param name="request"></param>
         /// <param name="path"></param>
         /// <param name="param"></param>
-        /// <param name="httpRequest">/param>
-        /// <param name="httpResponse">/param>
+        /// <param name="httpRequest"></param>
+        /// <param name="httpResponse"></param>
         /// <returns></returns>
         protected string HandleObjectMediaNavigateMessage(
             string request, string path, string param, IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)

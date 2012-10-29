@@ -126,7 +126,7 @@ namespace OpenSim.Region.Framework.Scenes.Serialization
         /// Serialize a scene object to the original xml format
         /// </summary>
         /// <param name="sceneObject"></param>
-        /// <param name="doScriptStates">Control whether script states are also serialized.</para>
+        /// <param name="doScriptStates">Control whether script states are also serialized.</param>
         /// <returns></returns>
         public static string ToOriginalXmlFormat(SceneObjectGroup sceneObject, bool doScriptStates)
         {

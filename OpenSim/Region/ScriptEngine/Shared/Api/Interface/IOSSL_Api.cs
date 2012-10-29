@@ -181,7 +181,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         /// <remarks>
         /// Nothing happens if the avatar is not in the region.
         /// </remarks>
-        /// <param name='rawAvatarId'>The UUID of the avatar to which to attach.  Nothing happens if this is not a UUID</para>
+        /// <param name='rawAvatarId'>The UUID of the avatar to which to attach.  Nothing happens if this is not a UUID</param>
         /// <param name='itemName'>The name of the item.  If this is not found then a warning is said to the owner</param>
         /// <param name='attachment'>The attachment point.  For example, ATTACH_CHEST</param>
         void osForceAttachToOtherAvatarFromInventory(string rawAvatarId, string itemName, int attachmentPoint);
@@ -319,7 +319,23 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         rotation    osNpcGetRot(key npc);
         void        osNpcSetRot(LSL_Key npc, rotation rot);
         void        osNpcStopMoveToTarget(LSL_Key npc);
+
+        /// <summary>
+        /// Makes an <paramref name="npc">NPC</paramref> say the
+        /// <paramref name="message"> on channel zero.
+        /// </summary>
+        /// <param name="npc"></param>
+        /// <param name="message"></param>
         void        osNpcSay(key npc, string message);
+
+        /// <summary>
+        /// Makes an <paramref name="npc">NPC</paramref> say the
+        /// <paramref name="message"/> on the specified
+        /// <paramref name="channel"/>.
+        /// </summary>
+        /// <param name="npc"></param>
+        /// <param name="channel"></param>
+        /// <param name="message"></param>
         void        osNpcSay(key npc, int channel, string message);
         void        osNpcShout(key npc, int channel, string message);
         void        osNpcSit(key npc, key target, int options);

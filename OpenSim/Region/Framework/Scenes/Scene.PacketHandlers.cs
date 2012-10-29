@@ -42,7 +42,7 @@ namespace OpenSim.Region.Framework.Scenes
         /// Send chat to listeners.
         /// </summary>
         /// <param name='message'></param>
-        /// <param name='type'>/param>
+        /// <param name='type'></param>
         /// <param name='channel'></param>
         /// <param name='fromPos'></param>
         /// <param name='fromName'></param>

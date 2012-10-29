@@ -1240,7 +1240,7 @@ namespace OpenSim.Framework
         /// </summary>
         /// <param name="objectname"></param>
         /// <param name="objectID"></param>
-        /// <param name="ownerID">/param>
+        /// <param name="ownerID"></param>
         /// <param name="ownerFirstName"></param>
         /// <param name="ownerLastName"></param>
         /// <param name="msg"></param>
@@ -1291,7 +1291,7 @@ namespace OpenSim.Framework
         /// <param name="snap_selection"></param>
         /// <param name="request_result"></param>
         /// <param name="lo"></param></param>
-        /// <param name="parcelObjectCapacity">/param>
+        /// <param name="parcelObjectCapacity"></param>
         /// <param name="simObjectCapacity"></param>
         /// <param name="regionFlags"></param>
         void SendLandProperties(int sequence_id, bool snap_selection, int request_result, ILandObject lo,

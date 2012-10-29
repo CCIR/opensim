@@ -47,7 +47,7 @@ namespace OpenSim.Framework.Serialization.External
         /// Populate a node with data read from xml using a dictinoary of processors
         /// </summary>
         /// <param name="nodeToFill"></param>
-        /// <param name="processors">/param>
+        /// <param name="processors"></param>
         /// <param name="xtr"></param>
         /// <returns>true on successful, false if there were any processing failures</returns>
         public static bool ExecuteReadProcessors<NodeType>(

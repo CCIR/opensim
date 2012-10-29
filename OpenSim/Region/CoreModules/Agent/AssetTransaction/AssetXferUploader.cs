@@ -91,7 +91,7 @@ namespace OpenSim.Region.CoreModules.Agent.AssetTransaction
         /// <summary>
         /// AssetXferUploader constructor
         /// </summary>
-        /// <param name='transactions'>/param>
+        /// <param name='transactions'></param>
         /// <param name='scene'></param>
         /// <param name='transactionID'></param>
         /// <param name='dumpAssetToFile'>

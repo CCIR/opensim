@@ -325,7 +325,7 @@ namespace OpenSim.Region.CoreModules.Avatar.Chat
         /// </summary>
         /// <param name="presence">The receiver</param>
         /// <param name="fromPos"></param>
-        /// <param name="regionPos">/param>
+        /// <param name="regionPos"></param>
         /// <param name="fromAgentID"></param>
         /// <param name='ownerID'>
         /// Owner of the message.  For at least some messages from objects, this has to be correctly filled with the owner's UUID.
