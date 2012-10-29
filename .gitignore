@@ -96,4 +96,5 @@ OpenSim/Tests/Common/test-results/
 OpenSim/Tests/test-results/
 test-results/
 doc/html
+doc/xml
 doc/doxygen.error.log
