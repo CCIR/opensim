@@ -2477,6 +2477,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
         public void llStopSound()
         {
             m_host.AddScriptLPS(1);
+
             if (m_SoundModule != null)
                 m_SoundModule.StopSound(m_host.UUID);
         }
