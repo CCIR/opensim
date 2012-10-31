@@ -7657,6 +7657,27 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                             LSL_Vector slice = rules.GetVector3Item(idx++);
                             part.UpdateSlice((float)slice.x, (float)slice.y);
                             break;
+                        case (int)ScriptBaseClass.OS_PRIM_PROJECTION:
+                            if (remain < 5 || !allowOpenSimParams)
+                                return null;
+                            bool projection =
+                                    rules.GetLSLIntegerItem(idx++) != 0;
+                            string texture = rules.GetLSLStringItem(idx++);
+                            UUID textureKey;
+                            UUID.TryParse(texture, out textureKey);
+                            float fov = (float)rules.GetLSLFloatItem(idx++);
+                            float focus = (float)rules.GetLSLFloatItem(idx++);
+                            float ambiance =
+                                    (float)rules.GetLSLFloatItem(idx++);
+
+                            part.Shape.ProjectionEntry = projection;
+                            part.Shape.ProjectionTextureUUID = textureKey;
+                            part.Shape.ProjectionFOV = fov;
+                            part.Shape.ProjectionFocus = focus;
+                            part.Shape.ProjectionAmbiance = ambiance;
+
+                            part.ScheduleFullUpdate();
+                            break;
                         case (int)ScriptBaseClass.PRIM_LINK_TARGET:
                             if (remain < 3) // setting to 3 on the basis that parsing any usage of PRIM_LINK_TARGET that has nothing following it is pointless.
                                 return null;
@@ -8374,6 +8395,16 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                             1 - (useProfileBeginEnd ? part.Shape.ProfileEnd : part.Shape.PathEnd) / 50000.0,
                             0
                         ));
+                        break;
+                    case (int)ScriptBaseClass.OS_PRIM_PROJECTION:
+                        if (!allowOpenSimParams)
+                            return null;
+                        res.Add((LSL_Integer)(
+                                part.Shape.ProjectionEntry ? 1 : 0));
+                        res.Add((LSL_Key)part.Shape.ProjectionTextureUUID.ToString());
+                        res.Add((LSL_Float)part.Shape.ProjectionFOV);
+                        res.Add((LSL_Float)part.Shape.ProjectionFocus);
+                        res.Add((LSL_Float)part.Shape.ProjectionAmbiance);
                         break;
                     case (int)ScriptBaseClass.PRIM_LINK_TARGET:
                         if(remain < 3)

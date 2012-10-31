@@ -381,6 +381,15 @@ namespace OpenSim.Region.ScriptEngine.Shared.ScriptBase
         public const int PRIM_POS_LOCAL = 33;
         public const int PRIM_LINK_TARGET = 34;
         public const int PRIM_SLICE = 35;
+
+        /// <summary>
+        /// Param for setting prim projectors.
+        /// </summary>
+        /// <remarks>
+        /// See <see cref="OpenSim.Region.ScriptEngine.Shared.Api.Interfaces.IOSSL_Api.osSetProjectionParams">osSetProjectionParams</see>
+        /// </remarks>
+        public const int OS_PRIM_PROJECTION = 65036;
+
         public const int PRIM_TEXGEN_DEFAULT = 0;
         public const int PRIM_TEXGEN_PLANAR = 1;
 
