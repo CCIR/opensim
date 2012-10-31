@@ -109,6 +109,12 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
         protected int EMAIL_PAUSE_TIME = 20;  // documented delay value for smtp.
         protected ISoundModule m_SoundModule = null;
 
+        /// <summary>
+        /// Determines whether OpenSim params can be used with
+        /// llSetPrimitiveParams etc.
+        /// </summary>
+        protected bool m_allowOpenSimParams = false;
+
         public void Initialize(IScriptEngine ScriptEngine, SceneObjectPart host, TaskInventoryItem item)
         {
             m_ScriptEngine = ScriptEngine;
@@ -136,6 +142,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 m_ScriptEngine.Config.GetFloat("MinTimerInterval", 0.5f);
             m_automaticLinkPermission =
                 m_ScriptEngine.Config.GetBoolean("AutomaticLinkPermission", false);
+            m_allowOpenSimParams =
+                m_ScriptEngine.Config.GetBoolean("AllowOpenSimParamsInLLFunctions", false);
             m_notecardLineReadCharsMax =
                 m_ScriptEngine.Config.GetInt("NotecardLineReadCharsMax", 255);
             if (m_notecardLineReadCharsMax > 65535)
@@ -7257,7 +7265,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             uint rulesParsed = 0;
 
             foreach (SceneObjectPart part in parts)
-                remaining = SetPrimParams(part, rules, originFunc, ref rulesParsed);
+            {
+                remaining = SetPrimParams(part, rules, originFunc,
+                        ref rulesParsed, m_allowOpenSimParams);
+            }
 
             while (remaining != null && remaining.Length > 2)
             {
@@ -7266,11 +7277,16 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 parts = GetLinkParts(linknumber);
 
                 foreach (SceneObjectPart part in parts)
-                    remaining = SetPrimParams(part, rules, originFunc, ref rulesParsed);
+                {
+                    remaining = SetPrimParams(part, rules, originFunc,
+                            ref rulesParsed, m_allowOpenSimParams);
+                }
             }
         }
 
-        protected LSL_List SetPrimParams(SceneObjectPart part, LSL_List rules, string originFunc, ref uint rulesParsed)
+        public LSL_List SetPrimParams(SceneObjectPart part, LSL_List rules,
+                string originFunc, ref uint rulesParsed,
+                bool allowOpenSimParams)
         {
             int idx = 0;
             int idxStart = 0;
@@ -7653,15 +7669,36 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                             LSL_Vector slice = rules.GetVector3Item(idx++);
                             part.UpdateSlice((float)slice.x, (float)slice.y);
                             break;
+                        case (int)ScriptBaseClass.OS_PRIM_PROJECTION:
+                            if (remain < 5 || !allowOpenSimParams)
+                                return null;
+                            bool projection =
+                                    rules.GetLSLIntegerItem(idx++) != 0;
+                            string texture = rules.GetLSLStringItem(idx++);
+                            UUID textureKey;
+                            UUID.TryParse(texture, out textureKey);
+                            float fov = (float)rules.GetLSLFloatItem(idx++);
+                            float focus = (float)rules.GetLSLFloatItem(idx++);
+                            float ambiance =
+                                    (float)rules.GetLSLFloatItem(idx++);
+
+                            part.Shape.ProjectionEntry = projection;
+                            part.Shape.ProjectionTextureUUID = textureKey;
+                            part.Shape.ProjectionFOV = fov;
+                            part.Shape.ProjectionFocus = focus;
+                            part.Shape.ProjectionAmbiance = ambiance;
+
+                            part.ScheduleFullUpdate();
+                            break;
                         case (int)ScriptBaseClass.OS_PRIM_VELOCITY:
-                            if (remain < 1)
+                            if (remain < 1 || !allowOpenSimParams)
                                 return null;
                             LSL_Vector velocity = rules.GetVector3Item(idx++);
                             part.Velocity = velocity;
                             part.ScheduleTerseUpdate();
                             break;
                         case (int)ScriptBaseClass.OS_PRIM_ACCELERATION:
-                            if (remain < 1)
+                            if (remain < 1 || !allowOpenSimParams)
                                 return null;
                             LSL_Vector accel = rules.GetVector3Item(idx++);
                             part.Acceleration = accel;
@@ -7953,7 +7990,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
             LSL_List result = new LSL_List();
 
-            LSL_List remaining = GetPrimParams(m_host, rules, ref result);
+            LSL_List remaining = GetPrimParams(m_host, rules, ref result,
+                    m_allowOpenSimParams);
 
             while (remaining != null && remaining.Length > 2)
             {
@@ -7962,7 +8000,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 List<SceneObjectPart> parts = GetLinkParts(linknumber);
 
                 foreach (SceneObjectPart part in parts)
-                    remaining = GetPrimParams(part, rules, ref result);
+                {
+                    remaining = GetPrimParams(part, rules, ref result,
+                            m_allowOpenSimParams);
+                }
             }
 
             return result;
@@ -7979,7 +8020,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
             foreach (SceneObjectPart part in parts)
             {
-                remaining = GetPrimParams(part, rules, ref res);
+                remaining = GetPrimParams(part, rules, ref res,
+                        m_allowOpenSimParams);
             }
 
             while (remaining != null && remaining.Length > 2)
@@ -7989,13 +8031,17 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 parts = GetLinkParts(linknumber);
 
                 foreach (SceneObjectPart part in parts)
-                    remaining = GetPrimParams(part, rules, ref res);
+                {
+                    remaining = GetPrimParams(part, rules, ref res,
+                            m_allowOpenSimParams);
+                }
             }
 
             return res;
         }
 
-        public LSL_List GetPrimParams(SceneObjectPart part, LSL_List rules, ref LSL_List res)
+        public LSL_List GetPrimParams(SceneObjectPart part, LSL_List rules,
+                ref LSL_List res, bool allowOpenSimParams)
         {
             int idx=0;
             while (idx < rules.Length)
@@ -8376,10 +8422,24 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                             0
                         ));
                         break;
+                    case (int)ScriptBaseClass.OS_PRIM_PROJECTION:
+                        if (!allowOpenSimParams)
+                            return null;
+                        res.Add((LSL_Integer)(
+                                part.Shape.ProjectionEntry ? 1 : 0));
+                        res.Add((LSL_Key)part.Shape.ProjectionTextureUUID.ToString());
+                        res.Add((LSL_Float)part.Shape.ProjectionFOV);
+                        res.Add((LSL_Float)part.Shape.ProjectionFocus);
+                        res.Add((LSL_Float)part.Shape.ProjectionAmbiance);
+                        break;
                     case (int)ScriptBaseClass.OS_PRIM_VELOCITY:
+                        if (!allowOpenSimParams)
+                            return null;
                         res.Add((LSL_Vector)part.Velocity);
                         break;
                     case (int)ScriptBaseClass.OS_PRIM_ACCELERATION:
+                        if (!allowOpenSimParams)
+                            return null;
                         res.Add((LSL_Vector)part.Acceleration);
                         break;
                     case (int)ScriptBaseClass.PRIM_LINK_TARGET:
@@ -10820,7 +10880,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             return tid.ToString();
         }
 
-        public void SetPrimitiveParamsEx(LSL_Key prim, LSL_List rules, string originFunc)
+        public void SetPrimitiveParamsEx(LSL_Key prim, LSL_List rules,
+                string originFunc, bool allowOpenSimParams)
         {
             SceneObjectPart obj = World.GetSceneObjectPart(new UUID(prim));
             if (obj == null)
@@ -10830,19 +10891,23 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 return;
 
             uint rulesParsed = 0;
-            LSL_List remaining = SetPrimParams(obj, rules, originFunc, ref rulesParsed);
+            LSL_List remaining = SetPrimParams(obj, rules, originFunc,
+                    ref rulesParsed, allowOpenSimParams);
 
             while ((object)remaining != null && remaining.Length > 2)
             {
                 LSL_Integer newLink = remaining.GetLSLIntegerItem(0);
                 LSL_List newrules = remaining.GetSublist(1, -1);
-                foreach(SceneObjectPart part in GetLinkParts(obj, newLink)){
-                    remaining = SetPrimParams(part, newrules, originFunc, ref rulesParsed);
+                foreach(SceneObjectPart part in GetLinkParts(obj, newLink))
+                {
+                    remaining = SetPrimParams(part, newrules, originFunc,
+                            ref rulesParsed, allowOpenSimParams);
                 }
             }
         }
 
-        public LSL_List GetPrimitiveParamsEx(LSL_Key prim, LSL_List rules)
+        public LSL_List GetPrimitiveParamsEx(LSL_Key prim, LSL_List rules,
+                bool allowOpenSimParams)
         {
             SceneObjectPart obj = World.GetSceneObjectPart(new UUID(prim));
 
@@ -10850,7 +10915,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
             if (obj != null && obj.OwnerID != m_host.OwnerID)
             {
-                LSL_List remaining = GetPrimParams(obj, rules, ref result);
+                LSL_List remaining = GetPrimParams(obj, rules, ref result,
+                        allowOpenSimParams);
 
                 while (remaining != null && remaining.Length > 2)
                 {
@@ -10859,7 +10925,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                     List<SceneObjectPart> parts = GetLinkParts(linknumber);
 
                     foreach (SceneObjectPart part in parts)
-                        remaining = GetPrimParams(part, rules, ref result);
+                    {
+                        remaining = GetPrimParams(part, rules, ref result,
+                                allowOpenSimParams);
+                    }
                 }
             }
 
