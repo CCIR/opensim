@@ -2269,7 +2269,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             List<SceneObjectPart> parts = LSL_Api.GetLinkParts(linknumber);
             foreach (SceneObjectPart part in parts)
             {
-                remaining = LSL_Api.GetPrimParams(part, rules, ref retVal);
+                remaining = LSL_Api.GetPrimParams(part, rules, ref retVal,
+                        true);
             }
 
             while (remaining != null && remaining.Length > 2)
@@ -2279,7 +2280,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
                 parts = LSL_Api.GetLinkParts(linknumber);
 
                 foreach (SceneObjectPart part in parts)
-                    remaining = LSL_Api.GetPrimParams(part, rules, ref retVal);
+                {
+                    remaining = LSL_Api.GetPrimParams(part, rules, ref retVal,
+                            true);
+                }
             }
             return retVal;
         }
@@ -2999,7 +3003,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             m_host.AddScriptLPS(1);
             InitLSL();
             
-            return m_LSL_Api.GetPrimitiveParamsEx(prim, rules);
+            return m_LSL_Api.GetPrimitiveParamsEx(prim, rules, true);
         }
 
         public void osSetPrimitiveParams(LSL_Key prim, LSL_List rules)
@@ -3008,7 +3012,41 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             m_host.AddScriptLPS(1);
             InitLSL();
             
-            m_LSL_Api.SetPrimitiveParamsEx(prim, rules, "osSetPrimitiveParams");
+            m_LSL_Api.SetPrimitiveParamsEx(prim, rules,
+                    "osSetPrimitiveParams", true);
+        }
+
+        public void osSetLinkPrimitiveParams(LSL_Integer link, LSL_List rules)
+        {
+            CheckThreatLevel(ThreatLevel.Low, "osSetLinkPrimitiveParams");
+            m_host.AddScriptLPS(1);
+            InitLSL();
+            // One needs to cast m_LSL_Api because we're using functions not
+            // on the ILSL_Api interface.
+            LSL_Api LSL_Api = (LSL_Api)m_LSL_Api;
+            LSL_List retVal = new LSL_List();
+            LSL_List remaining = null;
+            List<SceneObjectPart> parts = LSL_Api.GetLinkParts(link);
+            uint rulesParsed = 0;
+            foreach (SceneObjectPart part in parts)
+            {
+                remaining = LSL_Api.SetPrimParams(part, rules,
+                        "osSetLinkPrimitiveParams", ref rulesParsed, true);
+            }
+
+            while (remaining != null && remaining.Length > 2)
+            {
+                link = remaining.GetLSLIntegerItem(0);
+                rules = remaining.GetSublist(1, -1);
+                parts = LSL_Api.GetLinkParts(link);
+
+                foreach (SceneObjectPart part in parts)
+                {
+                    remaining = LSL_Api.SetPrimParams(part, rules,
+                            "osSetLinkPrimitiveParams", ref rulesParsed,
+                            true);
+                }
+            }
         }
         
         /// <summary>

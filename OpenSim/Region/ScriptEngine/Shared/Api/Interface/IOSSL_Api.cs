@@ -345,6 +345,15 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         void osCauseDamage(string avatar, double damage);
         LSL_List osGetPrimitiveParams(LSL_Key prim, LSL_List rules);
         void osSetPrimitiveParams(LSL_Key prim, LSL_List rules);
+
+        /// <summary>
+        /// Behaves like llSetLinkPrimitiveParamsFast but is always allowed to
+        /// use OpenSim params via OS_* constants.
+        /// </summary>
+        /// <param name="link"></param>
+        /// <param name="rules"></param>
+        /// <returns></returns>
+        void osSetLinkPrimitiveParams(LSL_Integer link, LSL_List rules);
         void osSetProjectionParams(bool projection, LSL_Key texture, double fov, double focus, double amb);
         void osSetProjectionParams(LSL_Key prim, bool projection, LSL_Key texture, double fov, double focus, double amb);
 
